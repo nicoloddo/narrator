@@ -15,6 +15,14 @@ python3 -m virtualenv venv
 source venv/bin/activate
 ```
 
+On Windows:
+
+```bash
+python -m pip install virtualenv
+python -m virtualenv venv
+.\venv\Scripts\Activate.ps1
+```
+
 Then, install the dependencies:
 `pip install -r requirements.txt`
 

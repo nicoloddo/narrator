@@ -5,7 +5,7 @@ import json
 import time
 import simpleaudio as sa
 import errno
-from elevenlabs import generate, play, set_api_key, voices
+from elevenlabs import generate, play, set_api_key, voices, stream
 
 client = OpenAI()
 
@@ -37,6 +37,18 @@ def play_audio(text):
 
     play(audio)
 
+def stream_audio(text):
+    audio = generate(text, voice=os.environ.get("ELEVENLABS_VOICE_ID"))
+    audio = generate(
+        text,
+        voice=os.environ.get("ELEVENLABS_VOICE_ID"),
+        model="eleven_turbo_v2",
+        stream=True,
+    )
+
+    stream(audio)
+    return
+
 
 def generate_new_line(base64_image):
     return [
@@ -46,7 +58,10 @@ def generate_new_line(base64_image):
                 {"type": "text", "text": "Describe this image"},
                 {
                     "type": "image_url",
-                    "image_url": f"data:image/jpeg;base64,{base64_image}",
+                    "image_url": {
+                        "url": f"data:image/jpg;base64,{base64_image}",
+                        "detail": "high"
+                    }
                 },
             ],
         },
@@ -55,7 +70,7 @@ def generate_new_line(base64_image):
 
 def analyze_image(base64_image, script):
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4o",
         messages=[
             {
                 "role": "system",
@@ -67,7 +82,7 @@ def analyze_image(base64_image, script):
         ]
         + script
         + generate_new_line(base64_image),
-        max_tokens=500,
+        max_tokens=300,
     )
     response_text = response.choices[0].message.content
     return response_text
@@ -90,7 +105,8 @@ def main():
         print("🎙️ David says:")
         print(analysis)
 
-        play_audio(analysis)
+        #play_audio(analysis)
+        stream_audio(analysis)
 
         script = script + [{"role": "assistant", "content": analysis}]
 
