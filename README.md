@@ -1,11 +1,14 @@
-# David Attenborough narrates your life. 
+# David Attenborough narrates your life from a Raspberry Pi Zero 2W. 
 
 https://twitter.com/charliebholtz/status/1724815159590293764
 
-## Want to make your own AI app?
-Check out [Replicate](https://replicate.com). We make it easy to run machine learning models with an API.
-
 ## Setup
+
+First install opencv on the main interpreter of the Raspberry
+
+```bash
+pip install opencv-python
+```
 
 Clone this repo, and setup and activate a virtualenv:
 
@@ -13,14 +16,6 @@ Clone this repo, and setup and activate a virtualenv:
 python3 -m pip install virtualenv
 python3 -m virtualenv venv
 source venv/bin/activate
-```
-
-On Windows:
-
-```bash
-python -m pip install virtualenv
-python -m virtualenv venv
-.\venv\Scripts\Activate.ps1
 ```
 
 Then, install the dependencies:
