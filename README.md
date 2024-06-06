@@ -23,17 +23,19 @@ Then, install the dependencies:
 pip install -r requirements.txt
 ```
 
-Make an [OpenAI](https://beta.openai.com/) and [ElevenLabs](https://elevenlabs.io) account and set your tokens:
-
+Make an [OpenAI](https://beta.openai.com/) and [ElevenLabs](https://elevenlabs.io) account and set your tokens in a new .sh script named:
+```
+setenv.sh
+```
+with this content:
 ```
 export OPENAI_API_KEY=<token>
 export ELEVENLABS_API_KEY=<eleven-token>
 ```
-
-You can put those exports in a setenv.sh file.
-Remember to make it executable:
+Then make it executable, as well as the setvoice.sh:
 ```bash
 chmod +x setenv.sh
+chmod +x setvoice.sh
 ```
 
 To change voice:
