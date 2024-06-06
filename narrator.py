@@ -72,7 +72,7 @@ def analyze_image(base64_image, script):
         ]
         + script
         + generate_new_line(base64_image),
-        max_tokens=300,
+        max_tokens=100,
     )
     response_text = response.choices[0].message.content
     return response_text
