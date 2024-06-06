@@ -1,27 +1,24 @@
 # David Attenborough narrates your life from a Raspberry Pi Zero 2W. 
+OpenCV has been deleted from the requirements and substituted by ImageIO
 
 https://twitter.com/charliebholtz/status/1724815159590293764
 
 ## Setup
 
-First install opencv on the main interpreter of the Raspberry
-
-```bash
-pip install opencv-python
-```
-
 Clone this repo, and setup and activate a virtualenv:
 
 ```bash
 python3 -m pip install virtualenv
-python3 -m virtualenv venv
+python3 -m virtualenv venv --system-site-packages
 source venv/bin/activate
 ```
 
 Then, install the dependencies:
-`pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
-Make a [Replicate](https://replicate.com), [OpenAI](https://beta.openai.com/), and [ElevenLabs](https://elevenlabs.io) account and set your tokens:
+Make an [OpenAI](https://beta.openai.com/) and [ElevenLabs](https://elevenlabs.io) account and set your tokens:
 
 ```
 export OPENAI_API_KEY=<token>
