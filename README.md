@@ -5,11 +5,16 @@ https://twitter.com/charliebholtz/status/1724815159590293764
 
 ## Setup
 
+First install python and an important numpy dependency:
+```bash
+sudo apt-get install libopenblas-dev
+```
+
 Clone this repo, and setup and activate a virtualenv:
 
 ```bash
 python3 -m pip install virtualenv
-python3 -m virtualenv venv --system-site-packages
+python3 -m virtualenv venv
 source venv/bin/activate
 ```
 
@@ -25,10 +30,30 @@ export OPENAI_API_KEY=<token>
 export ELEVENLABS_API_KEY=<eleven-token>
 ```
 
+You can put those exports in a setenv.sh file.
+Remember to make it executable:
+```bash
+chmod +x setenv.sh
+```
+
+To change voice:
 Make a new voice in Eleven and get the voice id of that voice using their [get voices](https://elevenlabs.io/docs/api-reference/voices) API, or by clicking the flask icon next to the voice in the VoiceLab tab.
 
+Then change the setvoice.sh file to the id you prefer.
 ```
 export ELEVENLABS_VOICE_ID=<voice-id>
+```
+
+
+Run the two .sh by sourcing them, otherwise they will run in a new subshell and the exports will not persist:
+```bash
+. setenv.sh
+. setvoice.sh
+```
+OR:
+```bash
+source setenv.sh
+source setvoice.sh
 ```
 
 ## Run it!
