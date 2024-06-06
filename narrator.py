@@ -5,7 +5,7 @@ import json
 import time
 import simpleaudio as sa
 import errno
-from elevenlabs import generate, play, set_api_key, voices, stream
+from elevenlabs import generate, play, set_api_key, voices
 
 client = OpenAI()
 
@@ -25,7 +25,10 @@ def encode_image(image_path):
 
 
 def play_audio(text):
-    audio = generate(text, voice=os.environ.get("ELEVENLABS_VOICE_ID"))
+    audio = generate(
+        text,
+        voice=os.environ.get("ELEVENLABS_VOICE_ID"),
+        model="eleven_turbo_v2")
 
     unique_id = base64.urlsafe_b64encode(os.urandom(30)).decode("utf-8").rstrip("=")
     dir_path = os.path.join("narration", unique_id)
@@ -36,19 +39,6 @@ def play_audio(text):
         f.write(audio)
 
     play(audio)
-
-def stream_audio(text):
-    audio = generate(text, voice=os.environ.get("ELEVENLABS_VOICE_ID"))
-    audio = generate(
-        text,
-        voice=os.environ.get("ELEVENLABS_VOICE_ID"),
-        model="eleven_turbo_v2",
-        stream=True,
-    )
-
-    stream(audio)
-    return
-
 
 def generate_new_line(base64_image):
     return [
@@ -105,8 +95,7 @@ def main():
         print("🎙️ David says:")
         print(analysis)
 
-        #play_audio(analysis)
-        stream_audio(analysis)
+        play_audio(analysis)
 
         script = script + [{"role": "assistant", "content": analysis}]
 
