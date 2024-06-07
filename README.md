@@ -29,8 +29,10 @@ setenv.sh
 ```
 with this content:
 ```
-export OPENAI_API_KEY=<token>
-export ELEVENLABS_API_KEY=<eleven-token>
+export OPENAI_API_KEY=<openai-key>
+export ELEVENLABS_API_KEY=<eleven-key>
+export PLAYHT_USER_ID=<playht-user>
+export PLAYHT_API_KEY=<playht-key>
 ```
 Then make it executable, as well as the setvoice.sh:
 ```bash
@@ -44,8 +46,10 @@ Make a new voice in Eleven and get the voice id of that voice using their [get v
 Then change the setvoice.sh file to the id you prefer.
 ```
 export ELEVENLABS_VOICE_ID=<voice-id>
+export PLAYHT_VOICE_ID=<voice-id>
 ```
 
+## Run it!
 
 Run the two .sh by sourcing them, otherwise they will run in a new subshell and the exports will not persist:
 ```bash
@@ -58,15 +62,7 @@ source setenv.sh
 source setvoice.sh
 ```
 
-## Run it!
-
-In on terminal, run the webcam capture:
-```bash
-python capture.py
-```
-In another terminal, run the narrator:
-
+Then run the software:
 ```bash
 python narrator.py
 ```
-

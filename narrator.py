@@ -7,6 +7,10 @@ import simpleaudio as sa
 import errno
 from elevenlabs import generate, play, set_api_key, voices
 
+import imageio
+import io
+from PIL import Image
+
 client = OpenAI()
 
 set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
@@ -72,21 +76,47 @@ def analyze_image(base64_image, script):
         ]
         + script
         + generate_new_line(base64_image),
-        max_tokens=100,
+        max_tokens=300,
     )
     response_text = response.choices[0].message.content
     return response_text
 
 
+def capture(reader):
+    frame = reader.get_next_data()
+        
+    # Convert the frame to a PIL image
+    pil_img = Image.fromarray(frame)
+
+    # Resize the image
+    max_size = 500
+    ratio = max_size / max(pil_img.size)
+    new_size = tuple([int(x*ratio) for x in pil_img.size])
+    resized_img = pil_img.resize(new_size, Image.LANCZOS)
+
+    # Convert PIL image to a bytes buffer and encode in base64
+    buffered = io.BytesIO()
+    resized_img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    return img_str
+
+
 def main():
+    reader = imageio.get_reader('<video0>')
+    # Wait for the camera to initialize and adjust light levels
+    time.sleep(2)
+
     script = []
 
     while True:
         # path to your image
-        image_path = os.path.join(os.getcwd(), "./frames/frame.jpg")
+        #image_path = os.path.join(os.getcwd(), "./frames/frame.jpg")
 
         # getting the base64 encoding
-        base64_image = encode_image(image_path)
+        #base64_image = encode_image(image_path)
+
+        base64_image = capture(reader)
 
         # analyze posture
         print("👀 David is watching...")
