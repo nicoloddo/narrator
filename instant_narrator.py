@@ -119,6 +119,10 @@ def capture(reader):
     new_size = tuple([int(x*ratio) for x in pil_img.size])
     resized_img = pil_img.resize(new_size, Image.LANCZOS)
 
+    # Save the frame as an image file for debugging purposes
+    path = os.path.join(frames_dir, "frame.jpg")
+    resized_img.save(path)
+
     # Convert PIL image to a bytes buffer and encode in base64
     buffered = io.BytesIO()
     resized_img.save(buffered, format="JPEG")
