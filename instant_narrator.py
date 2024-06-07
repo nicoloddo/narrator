@@ -79,10 +79,24 @@ def analyze_image(base64_image, clientOpenAI, script):
         messages=[
             {
                 "role": "system",
-                "content": """
-                You are Sir David Attenborough. Narrate the picture of the human as if it is a nature documentary.
-                Make it snarky and funny. Don't repeat yourself. Make it short. If I do anything remotely interesting, make a big deal about it!
-                """,
+                "content": os.environ.get("AGENT_PROMPT"),
+            },
+        ]
+        + script
+        + generate_new_line(base64_image),
+        max_tokens=300,
+    )
+    
+    response_text = response.choices[0].message.content
+    return response_text
+
+def analyze_image_async(base64_image, clientOpenAI, script):    
+    response = await clientOpenAI.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": os.environ.get("AGENT_PROMPT"),
             },
         ]
         + script
@@ -112,6 +126,20 @@ def capture(reader):
 
     return img_str
 
+def playht_options():
+    # Set the speech options
+    return TTSOptions(
+        
+        voice=os.environ.get("PLAYHT_VOICE_ID"),
+        
+        # you can pass any value between 8000 and 48000, 24000 is default
+        sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
+        
+        # the generated audio encoding, supports 'raw' | 'mp3' | 'wav' | 'ogg' | 'flac' | 'mulaw'
+        format=api_pb2.FORMAT_WAV,
+        
+        speed=0.9)
+
 '''MAIN'''
 async def async_main():
     reader = imageio.get_reader('<video0>')
@@ -130,7 +158,9 @@ async def async_main():
         
         print("👀 David is watching...")
         base64_image = capture(reader)
-        text = analyze_image(base64_image, clientOpenAI, script)
+
+        print("🧠 David is thinking...")
+        text = analyze_image_async(base64_image, clientOpenAI, script)
         
         print("🎙️ David says:")
         print(text)
@@ -141,23 +171,7 @@ async def async_main():
         await asyncio.sleep(3)  # Wait a bit before sending a new image
 
     # Cleanup.
-    await client.close()
-    
-    
-def playht_options():
-    # Set the speech options
-    return TTSOptions(
-        
-        voice=os.environ.get("PLAYHT_VOICE_ID"),
-        
-        # you can pass any value between 8000 and 48000, 24000 is default
-        sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
-        
-        # the generated audio encoding, supports 'raw' | 'mp3' | 'wav' | 'ogg' | 'flac' | 'mulaw'
-        format=api_pb2.FORMAT_WAV,
-        
-        speed=0.9)
-    
+    await client.close()    
     
 if __name__ == "__main__":
     asyncio.run(async_main())

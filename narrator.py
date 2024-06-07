@@ -68,10 +68,7 @@ def analyze_image(base64_image, script):
         messages=[
             {
                 "role": "system",
-                "content": """
-                You are Sir David Attenborough. Narrate the picture of the human as if it is a nature documentary.
-                Make it snarky and funny. Don't repeat yourself. Make it short. If I do anything remotely interesting, make a big deal about it!
-                """,
+                "content": os.environ.get("AGENT_PROMPT"),
             },
         ]
         + script
@@ -110,16 +107,12 @@ def main():
     script = []
 
     while True:
-        # path to your image
-        #image_path = os.path.join(os.getcwd(), "./frames/frame.jpg")
-
-        # getting the base64 encoding
-        #base64_image = encode_image(image_path)
-
-        base64_image = capture(reader)
 
         # analyze posture
         print("👀 David is watching...")
+        base64_image = capture(reader)
+
+        print("🧠 David is thinking...")
         analysis = analyze_image(base64_image, script=script)
 
         print("🎙️ David says:")

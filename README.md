@@ -31,22 +31,16 @@ with this content:
 ```
 export OPENAI_API_KEY=<openai-key>
 export ELEVENLABS_API_KEY=<eleven-key>
+```
+If you want to use the instant narrator, make an account at PlayHT and set your tokens in the same setenv.sh:
+```
 export PLAYHT_USER_ID=<playht-user>
 export PLAYHT_API_KEY=<playht-key>
 ```
-Then make it executable, as well as the setvoice.sh:
+Then make it executable, as well as the agent.sh:
 ```bash
 chmod +x setenv.sh
-chmod +x setvoice.sh
-```
-
-To change voice:
-Make a new voice in Eleven and get the voice id of that voice using their [get voices](https://elevenlabs.io/docs/api-reference/voices) API, or by clicking the flask icon next to the voice in the VoiceLab tab.
-
-Then change the setvoice.sh file to the id you prefer.
-```
-export ELEVENLABS_VOICE_ID=<voice-id>
-export PLAYHT_VOICE_ID=<voice-id>
+chmod +x agent.sh
 ```
 
 ## Run it!
@@ -54,15 +48,28 @@ export PLAYHT_VOICE_ID=<voice-id>
 Run the two .sh by sourcing them, otherwise they will run in a new subshell and the exports will not persist:
 ```bash
 . setenv.sh
-. setvoice.sh
+. agent.sh
 ```
 OR:
 ```bash
 source setenv.sh
-source setvoice.sh
+source agent.sh
 ```
 
 Then run the software:
 ```bash
 python narrator.py
 ```
+
+## Optional modifications:
+
+### To change voice:
+Make a new voice in Eleven and get the voice id of that voice using their [get voices](https://elevenlabs.io/docs/api-reference/voices) API, or by clicking the flask icon next to the voice in the VoiceLab tab.
+
+Then change the agent.sh file to the id you prefer.
+```
+export ELEVENLABS_VOICE_ID=<voice-id>
+export PLAYHT_VOICE_ID=<voice-id>
+```
+
+### Inside the agent.sh you can also change the system prompt of the agent.
