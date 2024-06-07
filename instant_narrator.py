@@ -2,7 +2,7 @@ import os
 import asyncio
 
 import numpy as np
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 import base64
 import time
 import simpleaudio as sa
@@ -157,7 +157,7 @@ async def async_main():
     time.sleep(2)
 
     # OpenAI client initialization
-    clientOpenAI = OpenAI()
+    clientOpenAI = AsyncOpenAI()
 
     # PlayHT API client initialization
     client = AsyncClient(os.environ.get("PLAYHT_USER_ID"),os.environ.get("PLAYHT_API_KEY"))
