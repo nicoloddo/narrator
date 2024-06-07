@@ -61,7 +61,7 @@ def generate_new_line(base64_image):
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": "Describe this image"},
+                {"type": "text", "text": os.environ.get("NEW_IMAGE_PROMPT")},
                 {
                     "type": "image_url",
                     "image_url": {
@@ -90,7 +90,7 @@ def analyze_image(base64_image, clientOpenAI, script):
     response_text = response.choices[0].message.content
     return response_text
 
-def analyze_image_async(base64_image, clientOpenAI, script):    
+async def analyze_image_async(base64_image, clientOpenAI, script):    
     response = await clientOpenAI.chat.completions.create(
         model="gpt-4o",
         messages=[
