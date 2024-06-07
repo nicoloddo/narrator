@@ -13,6 +13,13 @@ from PIL import Image
 
 client = OpenAI()
 
+# Folder
+folder = "frames"
+
+# Create the frames folder if it doesn't exist
+frames_dir = os.path.join(os.getcwd(), folder)
+os.makedirs(frames_dir, exist_ok=True)
+
 set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
 
 def encode_image(image_path):
@@ -49,7 +56,7 @@ def generate_new_line(base64_image):
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": "Describe this image"},
+                {"type": "text", "text": os.environ.get("NEW_IMAGE_PROMPT")},
                 {
                     "type": "image_url",
                     "image_url": {

@@ -15,8 +15,14 @@ import imageio
 import io
 from PIL import Image
 
-
 AUDIO_GENERATION_SAMPLE_RATE=22050  # Assuming a sample rate of 22050 Hz
+
+# Folder
+folder = "frames"
+
+# Create the frames folder if it doesn't exist
+frames_dir = os.path.join(os.getcwd(), folder)
+os.makedirs(frames_dir, exist_ok=True)
 
 async def async_play_audio(data):
     buff_size = 10485760
