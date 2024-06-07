@@ -128,7 +128,6 @@ def main():
 
         print("🎙️ David says:")
         print(analysis)
-
         play_audio(analysis)
 
         script = script + [{"role": "assistant", "content": analysis}]
