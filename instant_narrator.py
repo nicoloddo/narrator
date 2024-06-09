@@ -15,7 +15,8 @@ import imageio
 import io
 from PIL import Image
 
-AUDIO_GENERATION_SAMPLE_RATE=22050  # Assuming a sample rate of 22050 Hz
+AUDIO_GENERATION_SAMPLE_RATE=22050
+MAX_MINUTES_PER_AUDIO=4
 
 # Folder
 folder = "frames"
@@ -24,33 +25,8 @@ folder = "frames"
 frames_dir = os.path.join(os.getcwd(), folder)
 os.makedirs(frames_dir, exist_ok=True)
 
-async def async_play_audio(data):
-    buff_size = 10485760
-    ptr = 0
-    start_time = time.time()
-    buffer = np.empty(buff_size, np.float16)
-    audio = None
-    i = -1
-    async for chunk in data:
-        i += 1
-        if i == 0:
-            start_time = time.time()
-            continue  # Drop the first response, we don't want a header.
-        elif i == 1:
-            print("First audio byte received in:", time.time() - start_time)
-        for sample in np.frombuffer(chunk, np.float16):
-            buffer[ptr] = sample
-            ptr += 1
-        if i == 5:
-            # Give a 4 sample worth of breathing room before starting
-            # playback
-            audio = sa.play_buffer(buffer, 1, 2, AUDIO_GENERATION_SAMPLE_RATE)
-    approx_run_time = ptr / 24_000
-    await asyncio.sleep(max(approx_run_time - time.time() + start_time, 0))
-    if audio is not None:
-        audio.stop()
 
-
+'''Common tools'''
 def encode_image(image_path):
     try:
         with open(image_path, "rb") as image_file:
@@ -60,59 +36,7 @@ def encode_image(image_path):
             raise
         time.sleep(0.1)  # File is still being written, wait a bit and retry
 
-
-'''LLM handling'''
-def generate_new_line(base64_image):
-    return [
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": os.environ.get("NEW_IMAGE_PROMPT")},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpg;base34,{base64_image}",
-                        "detail": "high"
-                    }
-                },
-            ],
-        },
-    ]
-
-def analyze_image(base64_image, clientOpenAI, script):    
-    response = clientOpenAI.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": os.environ.get("AGENT_PROMPT"),
-            },
-        ]
-        + script
-        + generate_new_line(base64_image),
-        max_tokens=300,
-    )
-    
-    response_text = response.choices[0].message.content
-    return response_text
-
-async def analyze_image_async(base64_image, clientOpenAI, script):    
-    response = await clientOpenAI.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": os.environ.get("AGENT_PROMPT"),
-            },
-        ]
-        + script
-        + generate_new_line(base64_image),
-        max_tokens=300,
-    )
-    
-    response_text = response.choices[0].message.content
-    return response_text
-
+'''Capture picture'''
 def capture(reader):
     frame = reader.get_next_data()
         
@@ -135,6 +59,98 @@ def capture(reader):
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
     return img_str
+
+'''LLM handling'''
+def generate_new_line(base64_image, first_prompt_bool):
+    if first_prompt_bool:
+        prompt = os.environ.get("FIRST_IMAGE_PROMPT")
+    else:
+        prompt = os.environ.get("NEW_IMAGE_PROMPT")
+
+    return [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpg;base64,{base64_image}",
+                        "detail": "high"
+                    }
+                },
+            ],
+        },
+    ]
+
+def analyze_image(base64_image, clientOpenAI, script):    
+    response = clientOpenAI.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": os.environ.get("AGENT_PROMPT"),
+            },
+        ]
+        + script
+        + generate_new_line(base64_image, len(script)==0),
+        max_tokens=300,
+    )
+    
+    response_text = response.choices[0].message.content
+    return response_text
+
+async def analyze_image_async(base64_image, clientOpenAI, script):    
+    response = await clientOpenAI.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": os.environ.get("AGENT_PROMPT"),
+            },
+        ]
+        + script
+        + generate_new_line(base64_image, len(script)==0),
+        max_tokens=300,
+    )
+    
+    response_text = response.choices[0].message.content
+    return response_text
+
+'''Text to speech'''
+def calculate_buffer_size(duration_minutes, sample_rate, data_type):
+    max_duration_seconds = duration_minutes * 60  # Convert minutes to seconds
+    bytes_per_sample = np.dtype(data_type).itemsize
+    return max_duration_seconds * sample_rate * bytes_per_sample
+
+async def async_play_audio(data):
+    max_minutes_per_audio = MAX_MINUTES_PER_AUDIO
+    audio_sample_dtype = np.float16
+
+    buff_size = calculate_buffer_size(max_minutes_per_audio, AUDIO_GENERATION_SAMPLE_RATE, audio_sample_dtype)
+    ptr = 0
+    start_time = time.time()
+    buffer = np.empty(buff_size, audio_sample_dtype)
+    audio = None
+    i = -1
+    async for chunk in data:
+        i += 1
+        if i == 0:
+            start_time = time.time()
+            continue  # Drop the first response, we don't want a header.
+        elif i == 1:
+            print("First audio byte received in:", time.time() - start_time)
+        for sample in np.frombuffer(chunk, audio_sample_dtype):
+            buffer[ptr] = sample
+            ptr += 1
+        if i == 5:
+            # Give a 4 sample worth of breathing room before starting
+            # playback
+            audio = sa.play_buffer(buffer, 1, 2, AUDIO_GENERATION_SAMPLE_RATE)
+    approx_run_time = ptr / AUDIO_GENERATION_SAMPLE_RATE *(11/10) # Add a 1/10 of it to be sure it finishes
+    await asyncio.sleep(max(approx_run_time + (start_time - time.time()), 0))
+    if audio is not None:
+        audio.stop()
 
 def playht_options():
     # Set the speech options
@@ -178,7 +194,8 @@ async def async_main():
         
         script = script + [{"role": "assistant", "content": text}]
         
-        await asyncio.sleep(3)  # Wait a bit before sending a new image
+        print("😝 David is pausing...")
+        await asyncio.sleep(1)  # Wait a bit before sending a new image
 
     # Cleanup.
     await client.close()    
