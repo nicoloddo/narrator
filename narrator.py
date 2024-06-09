@@ -51,12 +51,17 @@ def play_audio(text):
 
     play(audio)
 
-def generate_new_line(base64_image):
+def generate_new_line(base64_image, first_prompt_bool):
+    if first_prompt_bool:
+        prompt = os.environ.get("FIRST_IMAGE_PROMPT")
+    else:
+        prompt = os.environ.get("NEW_IMAGE_PROMPT")
+
     return [
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": os.environ.get("NEW_IMAGE_PROMPT")},
+                {"type": "text", "text": prompt},
                 {
                     "type": "image_url",
                     "image_url": {
@@ -79,7 +84,7 @@ def analyze_image(base64_image, script):
             },
         ]
         + script
-        + generate_new_line(base64_image),
+        + generate_new_line(base64_image, len(script)==0), # If the script is empty this is the starting image
         max_tokens=300,
     )
     response_text = response.choices[0].message.content
@@ -132,8 +137,8 @@ def main():
 
         script = script + [{"role": "assistant", "content": analysis}]
 
-        # wait for 5 seconds
-        time.sleep(5)
+        print("😝 David is pausing...")
+        await asyncio.sleep(1)  # Wait a bit before sending a new image
 
 
 if __name__ == "__main__":
