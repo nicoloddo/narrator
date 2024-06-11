@@ -1,5 +1,3 @@
 #!/bin/bash
-source venv/bin/activate
-. setenv.sh
-. agent.sh
+./run_pre.sh
 python instant_narrator.py
