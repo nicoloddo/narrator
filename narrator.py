@@ -138,7 +138,7 @@ def main():
         script = script + [{"role": "assistant", "content": analysis}]
 
         print("😝 David is pausing...")
-        await asyncio.sleep(1)  # Wait a bit before sending a new image
+        time.sleep(1)  # Wait a bit before sending a new image
 
 
 if __name__ == "__main__":
