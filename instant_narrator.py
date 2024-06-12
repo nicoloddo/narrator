@@ -179,8 +179,11 @@ async def async_main():
     client = AsyncClient(os.environ.get("PLAYHT_USER_ID"),os.environ.get("PLAYHT_API_KEY"))
     options = playht_options()
 
+    max_times = os.environ.get("MAX_TIMES")
+    count = 0
+
     script = []
-    while True:
+    while count != max_times:
         
         print("👀 David is watching...")
         base64_image = capture(reader)
@@ -198,7 +201,8 @@ async def async_main():
         await asyncio.sleep(1)  # Wait a bit before sending a new image
 
     # Cleanup.
-    await client.close()    
+    await client.close()
+    print(f"Reached the maximum of {max_times}... turning off the narrator.")
     
 if __name__ == "__main__":
     asyncio.run(async_main())

@@ -120,9 +120,11 @@ def main():
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
 
-    script = []
+    max_times = os.environ.get("MAX_TIMES")
+    count = 0
 
-    while True:
+    script = []
+    while count != max_times:
 
         # analyze posture
         print("👀 David is watching...")
@@ -140,6 +142,9 @@ def main():
         print("😝 David is pausing...")
         time.sleep(1)  # Wait a bit before sending a new image
 
+        count += 1
+
+    print(f"Reached the maximum of {max_times}... turning off the narrator.")
 
 if __name__ == "__main__":
     main()
