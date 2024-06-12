@@ -157,6 +157,7 @@ def main(from_error=False, text=None):
             play_audio(text)
 
         except RateLimitError as e:
+            reader.close() # Turn off the camera
             maybe_start_alternative_narrator(e, from_error, text)
 
         script = script + [{"role": "assistant", "content": text}]
@@ -167,6 +168,7 @@ def main(from_error=False, text=None):
         count += 1
 
     print(f"Reached the maximum of {max_times}... turning off the narrator.")
+    reader.close() # Turn off the camera
 
 if __name__ == "__main__":
     import argparse

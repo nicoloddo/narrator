@@ -216,6 +216,8 @@ async def async_main(from_error=False, text=None):
             print(text)
             await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
         except Exception as e:
+            await reader.close()
+            await client.close()
             maybe_start_alternative_narrator(e, from_error, text)
         
         script = script + [{"role": "assistant", "content": text}]
@@ -226,8 +228,9 @@ async def async_main(from_error=False, text=None):
         count += 1
 
     # Cleanup.
-    await client.close()
     print(f"Reached the maximum of {max_times}... turning off the narrator.")
+    await reader.close()
+    await client.close()
     
 if __name__ == "__main__":
     import argparse
