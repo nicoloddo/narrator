@@ -206,7 +206,7 @@ async def async_main(from_error=False, text=None):
     script = []
     while count != max_times:
         
-        if from_error and count == 0 and text is not None:
+        if count == 0 and text is not None:
             text = text
         else:
             # analyze posture
@@ -259,7 +259,7 @@ if __name__ == "__main__":
         "--text",
         type=str,
         default=None,
-        help="Text to say. Required if --from-error is True."
+        help="Text to say at first instance of speech. Required if --from-error is True."
     )
 
     args = parser.parse_args()
