@@ -37,29 +37,35 @@ If you want to use the instant narrator, make an account at PlayHT and set your 
 export PLAYHT_USER_ID=<playht-user>
 export PLAYHT_API_KEY=<playht-key>
 ```
-Then make it executable, as well as the agent.sh:
+
+Then make the necessary scripts executable:
 ```bash
 chmod +x setenv.sh
 chmod +x agent.sh
+chmod +x run.sh
+chmod +x run_instant_narrator.sh
+chmod +x pre_run.sh
 ```
 
-## Run it!
-
-Run the two .sh by sourcing them, otherwise they will run in a new subshell and the exports will not persist:
+## Run it!s
 ```bash
-. setenv.sh
-. agent.sh
+./run.sh
 ```
 OR:
 ```bash
-source setenv.sh
-source agent.sh
+./run_instant_narrator.sh
 ```
 
-Then run the software:
+## To automate its running on startup:
+You can set a cronjob to start at the boot of the raspberry:
 ```bash
-python narrator.py
+crontab -e
 ```
+Place this line in a new line at the end of the file:
+```bash
+@reboot cd /home/path/to/ && /bin/bash -c 'echo -e "\n$(date) - Script started\n" >> ./run.log; /bin/bash ./run.sh >> ./run.log 2>&1; echo -e "\n$(date) - Script ended\n" >> ./run.log'
+```
+Remember to change home/path/to to the actual path where you cloned this repo.
 
 ## Optional modifications:
 
@@ -72,4 +78,30 @@ export ELEVENLABS_VOICE_ID=<voice-id>
 export PLAYHT_VOICE_ID=<voice-id>
 ```
 
-### Inside the agent.sh you can also change the system prompt of the agent.
+Inside the agent.sh you can also change:
+	- the system prompt of the agent, 
+	- the first prompt and the recurring prompt to the agent,
+	- the amount of times the agent will speak before turning off.
+
+### run.sh customization notes:
+Notice that the two .sh shouldn't be run directly but rather sourced, otherwise they will run in a new subshell and the exports will not persist:
+```bash
+. setenv.sh
+. agent.sh
+```
+OR:
+```bash
+source setenv.sh
+source agent.sh
+```
+
+Remember to activate the venv:
+```bash
+source venv/bin/activate
+```
+Then run the software:
+```bash
+python narrator.py
+```
+
+These steps are automated by simply running the run.sh or run_instant_narrator.sh file.
