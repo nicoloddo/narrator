@@ -214,7 +214,7 @@ async def async_main(from_error=False, text=None):
             base64_image = capture(reader)
 
             print("🧠 David is thinking...")
-            text = analyze_image(base64_image, clientOpenAI, script=script)
+            text = await analyze_image_async(base64_image, clientOpenAI, script=script)
         
         try:
             print("🎙️ David says:")
