@@ -6,6 +6,10 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 User=ananaspi
+Environment="HOME=/home/ananaspi"
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/ananaspi/.Xauthority"
+Environment="ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf"
 WorkingDirectory=/home/ananaspi/Projects/narrator
 ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --instant_narrator
 RemainAfterExit=true
