@@ -69,6 +69,30 @@ to:
 ./run.sh --instant_narrator
 If you want to use the instant narrator.
 
+#### OR:
+Move the narrator.service to ```/etc/systemd/system/```:
+```bash
+sudo cp narrator.service /etc/systemd/system/
+sudo systemctl enable narrator.service
+```
+Then activate the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable narrator.service
+```
+You can try the service with:
+```bash
+sudo systemctl start narrator.service
+```
+You can check the service with:
+```bash
+sudo systemctl status narrator.service
+```
+Or with:
+```bash
+journalctl -u narrator.service
+```
+
 ## Optional modifications:
 
 ### To change voice:

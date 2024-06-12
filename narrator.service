@@ -1,0 +1,15 @@
+[Unit]
+Description=David Attenborough narrates your life
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ananaspi
+WorkingDirectory=/home/ananaspi/Projects/narrator
+ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --narrator
+RemainAfterExit=true
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
