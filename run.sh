@@ -1,8 +1,15 @@
 #!/bin/bash
 
-/usr/bin/git reset --hard
-/usr/bin/git pull
-/usr/bin/amixer set Master 80%
+git reset --hard
+
+while ! ping -c 1 -W 1 github.com; do
+    echo "Waiting for github - network interface might be down..."
+    sleep 1
+done
+
+git pull
+amixer set Master 80%
+
 source venv/bin/activate
 . setenv.sh
 . agent.sh
