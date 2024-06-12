@@ -88,7 +88,7 @@ You can check the service with:
 ```bash
 sudo systemctl status narrator.service
 ```
-Or with:
+Or for more extensive logs with:
 ```bash
 journalctl -u narrator.service
 ```
