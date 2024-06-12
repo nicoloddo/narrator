@@ -8,7 +8,6 @@ while ! ping -c 1 -W 1 github.com; do
 done
 
 git pull
-amixer set Master 80%
 
 source venv/bin/activate
 . setenv.sh
