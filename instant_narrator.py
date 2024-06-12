@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import asyncio
 
@@ -240,7 +241,6 @@ async def async_main(from_error=False, text=None):
     else:
         print(f"Reached the maximum of {max_times}... turning off the narrator.")
     sys.exit(0)
-    
     
 if __name__ == "__main__":
     import argparse
