@@ -4,4 +4,4 @@ export FIRST_IMAGE_PROMPT="You are starting the documentary. This is the first t
 export NEW_IMAGE_PROMPT="Continue the documentary by talking about this image. You are Sir David Attenborough"
 export ELEVENLABS_VOICE_ID=Uql9NfKStxPGW1kwk20
 export PLAYHT_VOICE_ID="s3://voice-cloning-zero-shot/e8751c5e-c28e-4811-8b4f-992dfad28887/original/manifest.json"
-export MAX_TIMES="0"
+export MAX_TIMES="1"
