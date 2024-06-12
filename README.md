@@ -38,13 +38,9 @@ export PLAYHT_USER_ID=<playht-user>
 export PLAYHT_API_KEY=<playht-key>
 ```
 
-Then make the necessary scripts executable:
+Then make the run.sh script executable:
 ```bash
-chmod +x setenv.sh
-chmod +x agent.sh
 chmod +x run.sh
-chmod +x run_instant_narrator.sh
-chmod +x run_pre.sh
 ```
 
 ## Run it!s
