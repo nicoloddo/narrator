@@ -172,7 +172,7 @@ def maybe_start_alternative_narrator(e, from_error, text):
         print(f"Error occurred: {e}\n This was the alternative narrator.")
         raise e
     else: # We start the alternative narrator.
-        print(f"Rate Limit error occurred: {e}\n Starting the alternative narrator.")
+        print(f"Rate Limit error occurred: {e}\nStarting the alternative narrator.")
         command = [
             "python", "./narrator.py",
             "--from-error",
@@ -216,7 +216,7 @@ async def async_main(from_error=False, text=None):
             print(text)
             await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
         except Exception as e:
-            await reader.close()
+            await asyncio.get_running_loop().run_in_executor(None, reader.close) # Turn off the camera
             await client.close()
             maybe_start_alternative_narrator(e, from_error, text)
         
@@ -229,7 +229,7 @@ async def async_main(from_error=False, text=None):
 
     # Cleanup.
     print(f"Reached the maximum of {max_times}... turning off the narrator.")
-    await reader.close()
+    await asyncio.get_running_loop().run_in_executor(None, reader.close) # Turn off the camera
     await client.close()
     
 if __name__ == "__main__":
