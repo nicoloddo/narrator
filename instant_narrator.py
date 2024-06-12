@@ -173,7 +173,7 @@ def maybe_start_alternative_narrator(e, from_error, text):
         print(f"Error occurred: {e}\n This was the alternative narrator..\n\n")
         raise e
     else: # We start the alternative narrator.
-        print(f"Rate Limit error occurred: {e}\nStarting the alternative narrator.\n\n")
+        print(f"Error occurred: {e}\nStarting the alternative narrator.\n\n")
         command = [
             "python", "./narrator.py",
             "--from-error",
