@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# just some checks, delete this printenv when deploying
+printenv > /home/ananspi/service_environment.txt
+
 source venv/bin/activate
 . setenv.sh
 . agent.sh
