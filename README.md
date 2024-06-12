@@ -44,7 +44,7 @@ chmod +x setenv.sh
 chmod +x agent.sh
 chmod +x run.sh
 chmod +x run_instant_narrator.sh
-chmod +x pre_run.sh
+chmod +x run_pre.sh
 ```
 
 ## Run it!s
