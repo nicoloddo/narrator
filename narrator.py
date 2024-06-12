@@ -117,10 +117,10 @@ def capture(reader):
 
 def maybe_start_alternative_narrator(e, from_error, text):
     if from_error: # If this script was run from an error of another narrator, we stop it here to not create loops of runs.
-        print(f"Error occurred: {e}\n This was the alternative narrator.")
+        print(f"Error occurred: {e}\n This was the alternative narrator..\n\n")
         raise e
     else: # We start the alternative narrator.
-        print(f"Rate Limit error occurred: {e}\n Starting the alternative narrator.")
+        print(f"Rate Limit error occurred: {e}\nStarting the alternative narrator..\n\n")
         command = [
             "python", "./instant_narrator.py",
             "--from-error",
@@ -137,6 +137,10 @@ def main(from_error=False, text=None):
 
     max_times = os.environ.get("MAX_TIMES")
     count = 0
+
+    # TTS error handling
+    tts_error_occurred = False
+    tts_error = None
 
     script = []
     while count != max_times:
@@ -157,8 +161,9 @@ def main(from_error=False, text=None):
             play_audio(text)
 
         except RateLimitError as e:
-            reader.close() # Turn off the camera
-            maybe_start_alternative_narrator(e, from_error, text)
+            tts_error_occurred = True
+            tts_error = e
+            break
 
         script = script + [{"role": "assistant", "content": text}]
 
@@ -167,8 +172,14 @@ def main(from_error=False, text=None):
 
         count += 1
 
-    print(f"Reached the maximum of {max_times}... turning off the narrator.")
+    # Turning off
     reader.close() # Turn off the camera
+
+    if tts_error_occurred:
+        maybe_start_alternative_narrator(tts_error, from_error, text)
+    else:
+        print(f"Reached the maximum of {max_times}... turning off the narrator.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     import argparse
