@@ -79,9 +79,9 @@ export PLAYHT_VOICE_ID=<voice-id>
 ```
 
 Inside the agent.sh you can also change:
-	- the system prompt of the agent, 
-	- the first prompt and the recurring prompt to the agent,
-	- the amount of times the agent will speak before turning off.
+- the system prompt of the agent, 
+- the first prompt and the recurring prompt to the agent,
+- the amount of times the agent will speak before turning off.
 
 ### run.sh customization notes:
 Notice that the two .sh shouldn't be run directly but rather sourced, otherwise they will run in a new subshell and the exports will not persist:
