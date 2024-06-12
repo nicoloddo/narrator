@@ -141,7 +141,7 @@ def main(from_error=False, text=None):
     script = []
     while count != max_times:
 
-        if from_error and count = 0 and text is not None:
+        if from_error and count == 0 and text is not None:
             text = text
         else:
             # analyze posture
