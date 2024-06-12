@@ -118,10 +118,10 @@ def capture(reader):
 
 def maybe_start_alternative_narrator(e, from_error, text):
     if from_error: # If this script was run from an error of another narrator, we stop it here to not create loops of runs.
-        print(f"Error occurred: {e}\n This was the alternative narrator..\n\n")
+        print(f"TTS Error occurred: {e}\nThis was the alternative narrator..\n\n")
         raise e
     else: # We start the alternative narrator.
-        print(f"Rate Limit error occurred: {e}\nStarting the alternative narrator..\n\n")
+        print(f"TTS Error occurred: {e}\nStarting the alternative narrator.\n\n")
         command = [
             "python", "./instant_narrator.py",
             "--from-error",
@@ -136,7 +136,7 @@ def main(from_error=False, text=None):
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
 
-    max_times = os.environ.get("MAX_TIMES")
+    max_times = int(os.environ.get("MAX_TIMES"))
     count = 0
 
     # TTS error handling
@@ -161,7 +161,7 @@ def main(from_error=False, text=None):
             print(text)
             play_audio(text)
 
-        except RateLimitError as e:
+        except Exception as e:
             tts_error_occurred = True
             tts_error = e
             break

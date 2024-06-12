@@ -170,7 +170,7 @@ def playht_options():
 
 def maybe_start_alternative_narrator(e, from_error, text):
     if from_error: # If this script was run from an error of another narrator, we stop it here to not create loops of runs.
-        print(f"Error occurred: {e}\n This was the alternative narrator..\n\n")
+        print(f"Error occurred: {e}\nThis was the alternative narrator..\n\n")
         raise e
     else: # We start the alternative narrator.
         print(f"Error occurred: {e}\nStarting the alternative narrator.\n\n")
@@ -196,7 +196,7 @@ async def async_main(from_error=False, text=None):
     client = AsyncClient(os.environ.get("PLAYHT_USER_ID"),os.environ.get("PLAYHT_API_KEY"))
     options = playht_options()
 
-    max_times = os.environ.get("MAX_TIMES")
+    max_times = int(os.environ.get("MAX_TIMES"))
     count = 0
 
     # TTS error handling
@@ -220,6 +220,7 @@ async def async_main(from_error=False, text=None):
             print("🎙️ David says:")
             print(text)
             await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
+            
         except Exception as e:
             tts_error_occurred = True
             tts_error = e
