@@ -1,8 +1,8 @@
 #!/bin/bash
 
-usr/bin/git reset --hard
-usr/bin/git pull
-usr/bin/amixer set Master 80%
+/usr/bin/git reset --hard
+/usr/bin/git pull
+/usr/bin/amixer set Master 80%
 source venv/bin/activate
 . setenv.sh
 . agent.sh
