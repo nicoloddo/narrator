@@ -214,13 +214,13 @@ async def async_main(from_error=False, text=None):
             base64_image = capture(reader)
 
             print("🧠 David is thinking...")
-            text = analyze_image(base64_image, script=script)
+            text = analyze_image(base64_image, clientOpenAI, script=script)
         
         try:
             print("🎙️ David says:")
             print(text)
             await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
-            
+
         except Exception as e:
             tts_error_occurred = True
             tts_error = e
