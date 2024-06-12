@@ -252,7 +252,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Conditional requirement check
-    if args.enable_feature and not args.feature_detail:
-        parser.error("--feature-detail is required when --enable-feature is specified.")
+    if args.from_error and not args.text:
+        parser.error("--text is required when --from-error is specified.")
 
     asyncio.run(async_main(**vars(args)))
