@@ -1,11 +1,12 @@
 import os
+import subprocess
 from openai import OpenAI
 import base64
 import json
 import time
 import simpleaudio as sa
 import errno
-from elevenlabs import generate, play, set_api_key, voices
+from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 
 import imageio
 import io
@@ -114,10 +115,22 @@ def capture(reader):
 
     return img_str
 
+def maybe_start_alternative_narrator(e, from_error, text):
+    if from_error: # If this script was run from an error of another narrator, we stop it here to not create loops of runs.
+        print(f"Error occurred: {e}\n This was the alternative narrator.")
+        raise e
+    else: # We start the alternative narrator.
+        print(f"Rate Limit error occurred: {e}\n Starting the alternative narrator.")
+        command = [
+            "python", "./instant_narrator.py",
+            "--from-error",
+            "--text", text
+        ]
+        subprocess.run(command)
 
-def main():
+def main(from_error=False, text=None):
     print("☕ Waking David up...")
-    
+
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
@@ -128,18 +141,25 @@ def main():
     script = []
     while count != max_times:
 
-        # analyze posture
-        print("👀 David is watching...")
-        base64_image = capture(reader)
+        if from_error and count = 0 and text is not None:
+            text = text
+        else:
+            # analyze posture
+            print("👀 David is watching...")
+            base64_image = capture(reader)
 
-        print("🧠 David is thinking...")
-        analysis = analyze_image(base64_image, script=script)
+            print("🧠 David is thinking...")
+            text = analyze_image(base64_image, script=script)
 
-        print("🎙️ David says:")
-        print(analysis)
-        play_audio(analysis)
+        try:
+            print("🎙️ David says:")
+            print(text)
+            play_audio(text)
 
-        script = script + [{"role": "assistant", "content": analysis}]
+        except RateLimitError as e:
+            maybe_start_alternative_narrator(e, from_error, text)
+
+        script = script + [{"role": "assistant", "content": text}]
 
         print("😝 David is pausing...")
         time.sleep(1)  # Wait a bit before sending a new image
@@ -149,4 +169,29 @@ def main():
     print(f"Reached the maximum of {max_times}... turning off the narrator.")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="InstantNarrator")
+
+    # Boolean switch argument
+    parser.add_argument(
+        "--from-error",
+        action="store_true",
+        help="If the script was run from an error of another narrator. It stores the Boolean value True if the specified argument is present in the command line and False otherwise."
+    )
+
+    # Argument that is conditionally required
+    parser.add_argument(
+        "--text",
+        type=str,
+        default=None,
+        help="Text to say. Required if --from-error is True."
+    )
+
+    args = parser.parse_args()
+
+    # Conditional requirement check
+    if args.enable_feature and not args.feature_detail:
+        parser.error("--feature-detail is required when --enable-feature is specified.")
+
+    main(**vars(args))

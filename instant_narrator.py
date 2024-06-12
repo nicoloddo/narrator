@@ -1,4 +1,5 @@
 import os
+import subprocess
 import asyncio
 
 import numpy as np
@@ -166,8 +167,21 @@ def playht_options():
         
         speed=0.9)
 
+def maybe_start_alternative_narrator(e, from_error, text):
+    if from_error: # If this script was run from an error of another narrator, we stop it here to not create loops of runs.
+        print(f"Error occurred: {e}\n This was the alternative narrator.")
+        raise e
+    else: # We start the alternative narrator.
+        print(f"Rate Limit error occurred: {e}\n Starting the alternative narrator.")
+        command = [
+            "python", "./narrator.py",
+            "--from-error",
+            "--text", text
+        ]
+        subprocess.run(command)
+
 '''MAIN'''
-async def async_main():
+async def async_main(from_error=False, text=None):
     print("☕ Waking David up...")
 
     reader = imageio.get_reader('<video0>')
@@ -187,24 +201,58 @@ async def async_main():
     script = []
     while count != max_times:
         
-        print("👀 David is watching...")
-        base64_image = capture(reader)
+        if from_error and count = 0 and text is not None:
+            text = text
+        else:
+            # analyze posture
+            print("👀 David is watching...")
+            base64_image = capture(reader)
 
-        print("🧠 David is thinking...")
-        text = await analyze_image_async(base64_image, clientOpenAI, script)
+            print("🧠 David is thinking...")
+            text = analyze_image(base64_image, script=script)
         
-        print("🎙️ David says:")
-        print(text)
-        await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
+        try:
+            print("🎙️ David says:")
+            print(text)
+            await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
+        except Exception as e:
+            maybe_start_alternative_narrator(e, from_error, text)
         
         script = script + [{"role": "assistant", "content": text}]
         
         print("😝 David is pausing...")
         await asyncio.sleep(1)  # Wait a bit before sending a new image
 
+        count += 1
+
     # Cleanup.
     await client.close()
     print(f"Reached the maximum of {max_times}... turning off the narrator.")
     
 if __name__ == "__main__":
-    asyncio.run(async_main())
+    import argparse
+
+    parser = argparse.ArgumentParser(description="InstantNarrator")
+
+    # Boolean switch argument
+    parser.add_argument(
+        "--from-error",
+        action="store_true",
+        help="If the script was run from an error of another narrator. It stores the Boolean value True if the specified argument is present in the command line and False otherwise."
+    )
+
+    # Argument that is conditionally required
+    parser.add_argument(
+        "--text",
+        type=str,
+        default=None,
+        help="Text to say. Required if --from-error is True."
+    )
+
+    args = parser.parse_args()
+
+    # Conditional requirement check
+    if args.enable_feature and not args.feature_detail:
+        parser.error("--feature-detail is required when --enable-feature is specified.")
+
+    asyncio.run(async_main(**vars(args)))
