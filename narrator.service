@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=oneshot
 User=ananaspi
 WorkingDirectory=/home/ananaspi/Projects/narrator
-ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --narrator
+ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --instant_narrator
 RemainAfterExit=true
 Restart=no
 
