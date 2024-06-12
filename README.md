@@ -43,7 +43,7 @@ Then make the run.sh script executable:
 chmod +x run.sh
 ```
 
-## Run it!s
+## Run it!
 ```bash
 ./run.sh --narrator
 ```
@@ -51,6 +51,7 @@ OR:
 ```bash
 ./run --instant_narrator
 ```
+Note that if one gives an error, the other will start. The --option only gives the opportunity to specify which one to start as default narrator.
 
 ## To automate its running on startup:
 You can set a cronjob to start at the boot of the raspberry:
