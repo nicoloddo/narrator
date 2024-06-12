@@ -168,6 +168,8 @@ def playht_options():
 
 '''MAIN'''
 async def async_main():
+    print("☕ Waking David up...")
+
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
