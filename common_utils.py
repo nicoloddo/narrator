@@ -9,6 +9,8 @@ from PIL import Image
 import io
 import numpy as np
 
+import audio_feedback
+
 # Create the frames folder if it doesn't exist
 FRAMES_DIR = os.path.join(os.getcwd(), "frames")
 os.makedirs(FRAMES_DIR, exist_ok=True)
@@ -96,8 +98,10 @@ def capture(reader, frames_dir=FRAMES_DIR, *, debugging=False):
         if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
             if is_dark_or_uniform:
                 print("I can't see...")
+                audio_feedback.cant_see()
             else:
                 print("I can see clear!")
+                audio_feedback.i_see()
             print()
 
         # Count frames for debugging prints    

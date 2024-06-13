@@ -14,6 +14,7 @@ from pyht.protos import api_pb2
 import simpleaudio as sa
 
 from common_utils import maybe_start_alternative_narrator, generate_new_line, encode_image, capture
+import audio_feedback
 
 AUDIO_GENERATION_SAMPLE_RATE=22050
 MAX_MINUTES_PER_AUDIO=4
@@ -88,6 +89,8 @@ def playht_options():
 '''MAIN'''
 async def async_main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
+    if not from_error:
+        audio_feedback.startup()
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
@@ -140,6 +143,9 @@ async def async_main(from_error=False, text=None, debug_camera=False):
         count += 1
 
     # Turning off 
+    if not tts_error_occurred:
+        audio_feedback.turnoff()
+
     await asyncio.get_running_loop().run_in_executor(None, reader.close) # Turn off the camera
     await clientPlayHT.close()
 

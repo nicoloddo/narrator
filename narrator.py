@@ -11,15 +11,7 @@ from openai import OpenAI
 from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 
 from common_utils import maybe_start_alternative_narrator, generate_new_line, encode_image, capture
-
-# Folder
-FOLDER = "frames"
-
-# Create the frames folder if it doesn't exist
-FRAMES_DIR = os.path.join(os.getcwd(), FOLDER)
-os.makedirs(FRAMES_DIR, exist_ok=True)
-
-set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
+import audio_feedback
 
 ''' LLM HANDLING '''
 def analyze_image(base64_image, client, script):
@@ -58,12 +50,20 @@ def play_audio(text):
 ''' MAIN '''
 def main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
+    if not from_error:
+        audio_feedback.startup()
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
+    if debug_camera: # Infinite loop with prints to debug the camera
+        capture(reader, debugging=True)
 
+    # OpenAI client initialization
     client = OpenAI()
+
+    # ElevenLabs API initialization
+    set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
 
     max_times = int(os.environ.get("MAX_TIMES"))
     count = 0
@@ -80,7 +80,7 @@ def main(from_error=False, text=None, debug_camera=False):
         else:
             # analyze posture
             print("👀 David is watching...")
-            base64_image = capture(reader, FRAMES_DIR)
+            base64_image = capture(reader)
 
             print("🧠 David is thinking...")
             text = analyze_image(base64_image, client, script=script)
@@ -103,6 +103,9 @@ def main(from_error=False, text=None, debug_camera=False):
         count += 1
 
     # Turning off
+    if not tts_error_occurred:
+        audio_feedback.turnoff()
+
     reader.close() # Turn off the camera
 
     if tts_error_occurred:
