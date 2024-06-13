@@ -3,6 +3,15 @@
 # just some checks to make sure the service environment matches the user environment. You can comment this printenv when deploying
 # printenv > /home/ananaspi/service_environment.txt
 
+git reset --hard
+
+while ! ping -c 1 -W 1 github.com; do
+    echo "Waiting for github - network interface might be down..."
+    sleep 1
+done
+
+git pull
+
 source venv/bin/activate
 . setenv.sh
 . agent.sh
