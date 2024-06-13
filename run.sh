@@ -12,13 +12,13 @@ if [[ "$1" == "--narrator" ]]; then
     # Remove the first argument and pass the rest
     shift
     # Run narrator.py with all remaining arguments
-    echo "Running narrator.py with additional arguments"
+    echo "Running narrator.py"
     python narrator.py "$@"
 elif [[ "$1" == "--instant_narrator" ]]; then
     # Remove the first argument and pass the rest
     shift
     # Run instant_narrator.py with all remaining arguments
-    echo "Running instant_narrator.py with additional arguments"
+    echo "Running instant_narrator.py"
     python instant_narrator.py "$@"
 else
     echo "Invalid argument. Please use --narrator or --instant_narrator."
