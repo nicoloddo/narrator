@@ -59,8 +59,8 @@ def generate_new_line(base64_image, first_prompt_bool):
 ''' IMAGE CAPTURING UTILS '''
 PRINT_DEBUG_EACH_N_FRAMES = 50
 DARKNESS_THRESHOLD = int(os.environ.get("DARKNESS_THRESHOLD"))
-SATURATION_UNIFORMITY_THRESHOLD = int(os.environ.get("SATURATION_UNIFORMITY_THRESHOLD"))
 HUE_UNIFORMITY_THRESHOLD = int(os.environ.get("HUE_UNIFORMITY_THRESHOLD"))
+SATURATION_UNIFORMITY_THRESHOLD = int(os.environ.get("SATURATION_UNIFORMITY_THRESHOLD"))
 
 def encode_image(image_path):
     while True:
@@ -131,21 +131,19 @@ def check_image_quality(image,  count_frames, debugging=False):
     hsv_array = np.array(hsv_image)
 
     hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
-    #sat_std = hsv_array[:,:,1].std()  # Standard deviation of the saturation channel
+    sat_std = hsv_array[:,:,1].std()  # Standard deviation of the saturation channel
 
     darkness_threshold = DARKNESS_THRESHOLD
-    #sat_uniformity_threshold = SATURATION_UNIFORMITY_THRESHOLD  # Adjust this threshold based on your needs
     hue_uniformity_threshold = HUE_UNIFORMITY_THRESHOLD  # Adjust this threshold based on your needs
+    sat_uniformity_threshold = SATURATION_UNIFORMITY_THRESHOLD  # Adjust this threshold based on your needs
 
     if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
         print(f"Hue std: {hue_std}")
-        #print(f"Sat std: {sat_std}")
+        print(f"Sat std: {sat_std}")
         print(f"Brightness intensity: {average_intensity}")
 
     # Determine if the image is dark or lacks color variance
     is_dark = average_intensity < darkness_threshold
-    #lacks_color_variance = hue_std < hue_uniformity_threshold and sat_std < sat_uniformity_threshold
-    #lacks_color_variance = sat_std < sat_uniformity_threshold
-    lacks_color_variance = hue_std < hue_uniformity_threshold
+    lacks_color_variance = sat_std < sat_uniformity_threshold or hue_std < hue_uniformity_threshold
 
     return is_dark or lacks_color_variance
