@@ -2,6 +2,7 @@
 /venv
 /narration
 /frames/*
+/assets/*
 !/frames/.gitkeep
 /windows
 howtorun.txt
