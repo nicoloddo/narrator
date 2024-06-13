@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# just some checks, delete this printenv when deploying
-printenv > /home/ananaspi/service_environment.txt
+# just some checks to make sure the service environment matches the user environment. You can comment this printenv when deploying
+# printenv > /home/ananaspi/service_environment.txt
 
 source venv/bin/activate
 . setenv.sh
