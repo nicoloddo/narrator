@@ -92,8 +92,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
-    #time.sleep(2)
-    capture(reader)
+    capture(reader) # this will loop until camera shows something
     if not from_error:
         audio_feedback.startup()
 
@@ -125,7 +124,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
             base64_image = capture(reader)
 
             print("🧠 David is thinking...")
-            text = await analyze_image_async(base64_image, clientOpenAI, script=script)
+            text = await analyze_image_async(base64_image, client, script=script)
         
         try:
             print("🎙️ David says:")
