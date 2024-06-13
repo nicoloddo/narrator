@@ -72,6 +72,9 @@ def encode_image(image_path):
 
 PRINT_DEBUG_EACH_N_FRAMES = 50
 def capture(reader, frames_dir=FRAMES_DIR, *, debugging=False):
+    if debugging:
+        print("Started camera debugging")
+        
     is_dark_or_uniform = True
 
     count_frames = 0
