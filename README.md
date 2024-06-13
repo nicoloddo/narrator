@@ -63,11 +63,9 @@ Then activate the service:
 sudo systemctl daemon-reload
 sudo systemctl enable narrator.service
 ```
-You can try the service with:
-```bash
-sudo systemctl start narrator.service
-```
-You can check the service with:
+The service will run one time on startup, speaking at most as much as specified in the agent.sh MAX_TIMES variable.
+
+You can check the service output with:
 ```bash
 sudo systemctl status narrator.service
 ```
