@@ -116,7 +116,7 @@ async def async_main(from_error=False, text=None):
 
     script = []
     while count != max_times:
-        
+
         if count == 0 and text is not None:
             text = text
         else:
@@ -154,30 +154,8 @@ async def async_main(from_error=False, text=None):
         print(f"Reached the maximum of {max_times}... turning off the narrator.")
     sys.exit(0)
     
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="InstantNarrator")
-
-    # Boolean switch argument
-    parser.add_argument(
-        "--from-error",
-        action="store_true",
-        help="If the script was run from an error of another narrator. It stores the Boolean value True if the specified argument is present in the command line and False otherwise."
-    )
-
-    # Argument that is conditionally required
-    parser.add_argument(
-        "--text",
-        type=str,
-        default=None,
-        help="Text to say at first instance of speech. Required if --from-error is True."
-    )
-
-    args = parser.parse_args()
-
-    # Conditional requirement check
-    if args.from_error and not args.text:
-        parser.error("--text is required when --from-error is specified.")
+if __name__ == "__main__":    
+    from script_arguments import make_arguments
+    args = make_arguments(parser_description="InstantNarrator")
 
     asyncio.run(async_main(**vars(args)))
