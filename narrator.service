@@ -7,9 +7,13 @@ Wants=network-online.target
 Type=oneshot
 User=ananaspi
 Environment="HOME=/home/ananaspi"
-Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/ananaspi/.Xauthority"
-Environment="ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf"
+Environment="PATH=/home/ananaspi/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games"
+Environment="NO_AT_BRIDGE=1"
+Environment="XDG_SESSION_TYPE=tty"
+Environment="XDG_SESSION_CLASS=user"
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
 WorkingDirectory=/home/ananaspi/Projects/narrator
 ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --instant_narrator
 RemainAfterExit=true
