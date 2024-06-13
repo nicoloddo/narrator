@@ -10,7 +10,7 @@ from openai import OpenAI
 
 from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 
-from common_utils import maybe_start_alternative_narrator, generate_new_line, encode_image, capture
+from common_utils import maybe_start_alternative_narrator, generate_new_line, turn_camera_on, encode_image, capture
 import audio_feedback
 
 ''' LLM HANDLING '''
@@ -53,7 +53,7 @@ def main(from_error=False, text=None, debug_camera=False):
 
     time.sleep(2) # Wait for camera
     reader = imageio.get_reader('<video0>')
-    # Wait for the camera to initialize and adjust light levels
+    #time.sleep(2) # Wait for the camera to initialize and adjust light levels
 
     capture(reader, debugging=debug_camera) # loop until camera shows something
     # When debugging the camera, the above command loops in infinite

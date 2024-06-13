@@ -13,7 +13,7 @@ from pyht.client import TTSOptions
 from pyht.protos import api_pb2
 import simpleaudio as sa
 
-from common_utils import maybe_start_alternative_narrator, generate_new_line, encode_image, capture
+from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture
 import audio_feedback
 
 AUDIO_GENERATION_SAMPLE_RATE=22050
@@ -90,7 +90,7 @@ def playht_options():
 async def async_main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
 
-    reader = imageio.get_reader('<video0>')
+    reader = get_camera('<video0>')
     # Wait for the camera to initialize and adjust light levels
     #time.sleep(2)
 

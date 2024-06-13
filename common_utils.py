@@ -62,6 +62,15 @@ DARKNESS_THRESHOLD = int(os.environ.get("DARKNESS_THRESHOLD"))
 HUE_UNIFORMITY_THRESHOLD = int(os.environ.get("HUE_UNIFORMITY_THRESHOLD"))
 SATURATION_UNIFORMITY_THRESHOLD = int(os.environ.get("SATURATION_UNIFORMITY_THRESHOLD"))
 
+def get_camera(camera='<video0>'):
+    while True:
+        try:
+            reader = imageio.get_reader(camera)
+            return reader
+        except IOError:
+            # Wait a bit and retry
+            time.sleep(0.1)
+
 def encode_image(image_path):
     while True:
         try:
