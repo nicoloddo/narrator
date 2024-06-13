@@ -89,12 +89,14 @@ def playht_options():
 '''MAIN'''
 async def async_main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
-    if not from_error:
-        audio_feedback.startup()
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
-    time.sleep(2)
+    #time.sleep(2)
+    capture(reader)
+    if not from_error:
+        audio_feedback.startup()
+
     if debug_camera: # Infinite loop with prints to debug the camera
         capture(reader, debugging=True)
 
