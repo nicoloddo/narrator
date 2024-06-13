@@ -57,6 +57,11 @@ def generate_new_line(base64_image, first_prompt_bool):
 
 ''' **************************************************************************************************** '''
 ''' IMAGE CAPTURING UTILS '''
+PRINT_DEBUG_EACH_N_FRAMES = 100
+DARKNESS_THRESHOLD = int(os.environ.get("DARKNESS_THRESHOLD"))
+SATURATION_UNIFORMITY_THRESHOLD = int(os.environ.get("SATURATION_UNIFORMITY_THRESHOLD"))
+HUE_UNIFORMITY_THRESHOLD = int(os.environ.get("HUE_UNIFORMITY_THRESHOLD"))
+
 def encode_image(image_path):
     while True:
         try:
@@ -69,12 +74,10 @@ def encode_image(image_path):
             # File is being written to, wait a bit and retry
             time.sleep(0.1)
 
-
-PRINT_DEBUG_EACH_N_FRAMES = 50
 def capture(reader, frames_dir=FRAMES_DIR, *, debugging=False):
     if debugging:
         print("Started camera debugging")
-        
+
     is_dark_or_uniform = True
 
     count_frames = 0
@@ -122,20 +125,20 @@ def check_image_quality(image,  count_frames, debugging=False):
     # Convert to grayscale and check brightness
     gray_image = image.convert('L')
     average_intensity = np.array(gray_image).mean()
-    darkness_threshold = 50
 
     # Convert to HSV and check color uniformity
     hsv_image = image.convert('HSV')
     hsv_array = np.array(hsv_image)
 
-    #hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
+    hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
     sat_std = hsv_array[:,:,1].std()  # Standard deviation of the saturation channel
 
-    #hue_uniformity_threshold = 50  # Adjust this threshold based on your needs
-    sat_uniformity_threshold = 25  # Adjust this threshold based on your needs
+    darkness_threshold = DARKNESS_THRESHOLD
+    sat_uniformity_threshold = SATURATION_UNIFORMITY_THRESHOLD  # Adjust this threshold based on your needs
+    #hue_uniformity_threshold = HUE_UNIFORMITY_THRESHOLD  # Adjust this threshold based on your needs
 
     if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
-        #print(f"Hue std: {hue_std}")
+        print(f"Hue std: {hue_std}")
         print(f"Sat std: {sat_std}")
         print(f"Brightness intensity: {average_intensity}")
 
