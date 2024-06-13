@@ -54,22 +54,6 @@ OR:
 Note that if one gives an error, the other will start. The --option only gives the opportunity to specify which one to start as default narrator.
 
 ## To automate its running on startup:
-You can set a cronjob to start at the boot of the raspberry:
-```bash
-crontab -e
-```
-Place this line in a new line at the end of the file:
-```bash
-@reboot cd /home/path/to/ && /bin/bash -c 'echo -e "\n$(date) - Script started\n" >> ./run.log; /bin/bash ./run.sh --narrator >> ./run.log 2>&1; echo -e "\n$(date) - Script ended\n" >> ./run.log'
-```
-Remember to change home/path/to to the actual path where you cloned this repo.
-Remember also to change:
-./run.sh --narrator
-to:
-./run.sh --instant_narrator
-If you want to use the instant narrator.
-
-#### OR:
 Move the narrator.service to ```/etc/systemd/system/```:
 ```bash
 sudo cp narrator.service /etc/systemd/system/
