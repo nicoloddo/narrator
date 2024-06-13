@@ -9,6 +9,10 @@ from PIL import Image
 import io
 import numpy as np
 
+# Create the frames folder if it doesn't exist
+FRAMES_DIR = os.path.join(os.getcwd(), "frames")
+os.makedirs(FRAMES_DIR, exist_ok=True)
+
 ''' **************************************************************************************************** '''
 ''' ERROR HANDLING UTILS '''
 def maybe_start_alternative_narrator(e, from_error, text, alternative_narrator="./instant_narrator.py"):
@@ -65,7 +69,7 @@ def encode_image(image_path):
 
 
 PRINT_DEBUG_EACH_N_FRAMES = 50
-def capture(reader, frames_dir, debugging=False):
+def capture(reader, frames_dir=FRAMES_DIR, *, debugging=False):
     is_dark_or_uniform = True
 
     count_frames = 0

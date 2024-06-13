@@ -18,13 +18,6 @@ from common_utils import maybe_start_alternative_narrator, generate_new_line, en
 AUDIO_GENERATION_SAMPLE_RATE=22050
 MAX_MINUTES_PER_AUDIO=4
 
-# Folder
-FOLDER = "frames"
-
-# Create the frames folder if it doesn't exist
-FRAMES_DIR = os.path.join(os.getcwd(), FOLDER)
-os.makedirs(FRAMES_DIR, exist_ok=True)
-
 '''Async LLM HANDLING'''
 async def analyze_image_async(base64_image, clientOpenAI, script):    
     response = await clientOpenAI.chat.completions.create(
@@ -100,13 +93,13 @@ async def async_main(from_error=False, text=None, debug_camera=False):
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
     if debug_camera: # Infinite loop with prints to debug the camera
-        capture(reader, FRAMES_DIR, debugging=True)
+        capture(reader, debugging=True)
 
     # OpenAI client initialization
-    clientOpenAI = AsyncOpenAI()
+    client = AsyncOpenAI()
 
     # PlayHT API client initialization
-    client = AsyncClient(os.environ.get("PLAYHT_USER_ID"),os.environ.get("PLAYHT_API_KEY"))
+    clientPlayHT = AsyncClient(os.environ.get("PLAYHT_USER_ID"),os.environ.get("PLAYHT_API_KEY"))
     options = playht_options()
 
     max_times = int(os.environ.get("MAX_TIMES"))
@@ -124,7 +117,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
         else:
             # analyze posture
             print("👀 David is watching...")
-            base64_image = capture(reader, FRAMES_DIR)
+            base64_image = capture(reader)
 
             print("🧠 David is thinking...")
             text = await analyze_image_async(base64_image, clientOpenAI, script=script)
@@ -132,7 +125,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
         try:
             print("🎙️ David says:")
             print(text)
-            await async_play_audio(client.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
+            await async_play_audio(clientPlayHT.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
 
         except Exception as e:
             tts_error_occurred = True
@@ -148,7 +141,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
 
     # Turning off 
     await asyncio.get_running_loop().run_in_executor(None, reader.close) # Turn off the camera
-    await client.close()
+    await clientPlayHT.close()
 
     if tts_error_occurred:
         maybe_start_alternative_narrator(tts_error, from_error, text, "./narrator.py")
