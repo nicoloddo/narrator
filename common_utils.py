@@ -117,15 +117,16 @@ def check_image_quality(image,  count_frames, debugging=False):
     hsv_image = image.convert('HSV')
     hsv_array = np.array(hsv_image)
 
-    hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
+    #hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
     sat_std = hsv_array[:,:,1].std()  # Standard deviation of the saturation channel
 
-    hue_uniformity_threshold = 50  # Adjust this threshold based on your needs
+    #hue_uniformity_threshold = 50  # Adjust this threshold based on your needs
     sat_uniformity_threshold = 25  # Adjust this threshold based on your needs
 
     if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
-        print(f"Hue std: {hue_std}")
+        #print(f"Hue std: {hue_std}")
         print(f"Sat std: {sat_std}")
+        print(f"Brightness intensity: {average_intensity}")
 
     # Determine if the image is dark or lacks color variance
     is_dark = average_intensity < darkness_threshold

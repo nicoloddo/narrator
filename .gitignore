@@ -6,3 +6,4 @@
 /windows
 howtorun.txt
 .spyproject/
+__pycache__/
