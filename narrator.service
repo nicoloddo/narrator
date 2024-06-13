@@ -15,7 +15,7 @@ Environment="XDG_SESSION_CLASS=user"
 Environment="XDG_RUNTIME_DIR=/run/user/1000"
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
 WorkingDirectory=/home/ananaspi/Projects/narrator
-ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --instant_narrator
+ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --narrator
 RemainAfterExit=true
 Restart=no
 
