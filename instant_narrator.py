@@ -92,15 +92,13 @@ async def async_main(from_error=False, text=None, debug_camera=False):
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
-    time.sleep(2)
+    #time.sleep(2)
 
-    capture(reader) # loop until camera shows something
+    capture(reader, debugging=debug_camera) # loop until camera shows something
+    # When debugging the camera, the above command loops in infinite
     if not from_error:
-        print("Hello!")
+        print("👋 Hello!")
         audio_feedback.startup()
-
-    if debug_camera: # Infinite loop with prints to debug the camera
-        capture(reader, debugging=True)
 
     # OpenAI client initialization
     client = AsyncOpenAI()
