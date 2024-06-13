@@ -4,8 +4,6 @@ import asyncio
 import time
 import numpy as np
 
-import imageio
-
 from openai import OpenAI, AsyncOpenAI
 
 from pyht.async_client import AsyncClient

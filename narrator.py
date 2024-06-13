@@ -3,14 +3,11 @@ import sys
 import base64
 import time
 
-
-import imageio
-
 from openai import OpenAI
 
 from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 
-from common_utils import maybe_start_alternative_narrator, generate_new_line, turn_camera_on, encode_image, capture
+from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture
 import audio_feedback
 
 ''' LLM HANDLING '''
@@ -52,7 +49,7 @@ def main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
 
     time.sleep(2) # Wait for camera
-    reader = imageio.get_reader('<video0>')
+    reader = get_camera('<video0>')
     #time.sleep(2) # Wait for the camera to initialize and adjust light levels
 
     capture(reader, debugging=debug_camera) # loop until camera shows something
