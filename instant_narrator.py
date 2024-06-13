@@ -92,8 +92,11 @@ async def async_main(from_error=False, text=None, debug_camera=False):
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
-    capture(reader) # this will loop until camera shows something
+    time.sleep(2)
+
+    capture(reader) # loop until camera shows something
     if not from_error:
+        print("Hello!")
         audio_feedback.startup()
 
     if debug_camera: # Infinite loop with prints to debug the camera
