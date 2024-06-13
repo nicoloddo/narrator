@@ -73,7 +73,6 @@ If you want to use the instant narrator.
 Move the narrator.service to ```/etc/systemd/system/```:
 ```bash
 sudo cp narrator.service /etc/systemd/system/
-sudo systemctl enable narrator.service
 ```
 Then activate the service:
 ```bash
