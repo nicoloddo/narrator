@@ -51,9 +51,9 @@ def play_audio(text):
 def main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
 
+    time.sleep(2) # Wait for camera
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
-    #time.sleep(2)
 
     capture(reader, debugging=debug_camera) # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
