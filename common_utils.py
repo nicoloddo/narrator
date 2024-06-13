@@ -2,6 +2,7 @@ import subprocess
 
 import os
 
+import imageio
 import base64
 import errno
 import time
