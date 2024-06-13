@@ -93,12 +93,14 @@ def playht_options():
         speed=0.9)
 
 '''MAIN'''
-async def async_main(from_error=False, text=None):
+async def async_main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
 
     reader = imageio.get_reader('<video0>')
     # Wait for the camera to initialize and adjust light levels
     time.sleep(2)
+    if debug_camera: # Infinite loop with prints to debug the camera
+        capture(reader, FRAMES_DIR, debugging=True)
 
     # OpenAI client initialization
     clientOpenAI = AsyncOpenAI()

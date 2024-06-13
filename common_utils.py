@@ -63,39 +63,73 @@ def encode_image(image_path):
             # File is being written to, wait a bit and retry
             time.sleep(0.1)
 
-def capture(reader, frames_dir):
-    frame = reader.get_next_data()
-        
-    # Convert the frame to a PIL image
-    pil_img = Image.fromarray(frame)
 
-    # Resize the image
-    max_size = 500
-    ratio = max_size / max(pil_img.size)
-    new_size = tuple([int(x*ratio) for x in pil_img.size])
-    resized_img = pil_img.resize(new_size, Image.LANCZOS)
+PRINT_DEBUG_EACH_N_FRAMES = 50
+def capture(reader, frames_dir, debugging=False):
+    is_dark_or_uniform = True
 
+    count_frames = 0
+    while is_dark_or_uniform or debugging:
+
+        frame = reader.get_next_data()
+            
+        # Convert the frame to a PIL image
+        pil_img = Image.fromarray(frame)
+
+        # Resize the image
+        max_size = 500
+        ratio = max_size / max(pil_img.size)
+        new_size = tuple([int(x*ratio) for x in pil_img.size])
+        resized_img = pil_img.resize(new_size, Image.LANCZOS)
+
+        # Convert PIL image to a bytes buffer and encode in base64
+        buffered = io.BytesIO()
+        resized_img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+        is_dark_or_uniform = check_image_quality(resized_img, count_frames, debugging)
+
+        if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
+            if is_dark_or_uniform:
+                print("I can't see...")
+            else:
+                print("I can see clear!")
+            print()
+
+        # Count frames for debugging prints    
+        count_frames += 1
+        if count_frames == PRINT_DEBUG_EACH_N_FRAMES + 1:
+            count_frames = 0
+
+    # We are out of the loop, so the image is ok:
     # Save the frame as an image file for debugging purposes
     path = os.path.join(frames_dir, "frame.jpg")
     resized_img.save(path)
-
-    # Convert PIL image to a bytes buffer and encode in base64
-    buffered = io.BytesIO()
-    resized_img.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
     return img_str
 
-def check_if_dark(image):
-    # Convert the image to grayscale
+def check_image_quality(image,  count_frames, debugging=False):
+    # Convert to grayscale and check brightness
     gray_image = image.convert('L')
-    # Convert the grayscale image to a numpy array
-    image_array = np.array(gray_image)
-    # Calculate the average pixel intensity
-    average_intensity = image_array.mean()
+    average_intensity = np.array(gray_image).mean()
+    darkness_threshold = 50
 
-    # Define a threshold for darkness (you may need to adjust this based on your specific needs)
-    darkness_threshold = 50  # A common value; lower means darker
+    # Convert to HSV and check color uniformity
+    hsv_image = image.convert('HSV')
+    hsv_array = np.array(hsv_image)
 
-    # Return True if the image is dark, False otherwise
-    return average_intensity < darkness_threshold
+    hue_std = hsv_array[:,:,0].std()  # Standard deviation of the hue channel
+    sat_std = hsv_array[:,:,1].std()  # Standard deviation of the saturation channel
+
+    hue_uniformity_threshold = 50  # Adjust this threshold based on your needs
+    sat_uniformity_threshold = 25  # Adjust this threshold based on your needs
+
+    if debugging and count_frames % PRINT_DEBUG_EACH_N_FRAMES == 0:
+        print(f"Hue std: {hue_std}")
+        print(f"Sat std: {sat_std}")
+
+    # Determine if the image is dark or lacks color variance
+    is_dark = average_intensity < darkness_threshold
+    #lacks_color_variance = hue_std < hue_uniformity_threshold and sat_std < sat_uniformity_threshold
+    lacks_color_variance = sat_std < sat_uniformity_threshold
+
+    return is_dark or lacks_color_variance

@@ -56,7 +56,7 @@ def play_audio(text):
     play(audio)
 
 ''' MAIN '''
-def main(from_error=False, text=None):
+def main(from_error=False, text=None, debug_camera=False):
     print("☕ Waking David up...")
 
     reader = imageio.get_reader('<video0>')
