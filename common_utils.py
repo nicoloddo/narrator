@@ -55,6 +55,17 @@ def generate_new_line(base64_image, first_prompt_bool):
         },
     ]
 
+def cut_to_n_words(text, n):
+    # Split the text into words
+    words = text.split()
+    
+    # Get the first n words
+    first_n_words = words[:n]
+    
+    # Join them back into a string if needed
+    result = ' '.join(first_n_words)
+    
+    return result
 
 ''' **************************************************************************************************** '''
 ''' IMAGE CAPTURING UTILS '''

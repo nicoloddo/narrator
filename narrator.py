@@ -7,8 +7,10 @@ from openai import OpenAI
 
 from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 
-from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture
+from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture, cut_to_n_words
 import audio_feedback
+
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS"))
 
 ''' LLM HANDLING '''
 def analyze_image(base64_image, client, script):
@@ -22,7 +24,7 @@ def analyze_image(base64_image, client, script):
         ]
         + script
         + generate_new_line(base64_image, len(script)==0), # If the script is empty this is the starting image
-        max_tokens=300,
+        max_tokens=MAX_TOKENS
     )
     response_text = response.choices[0].message.content
     return response_text
@@ -46,7 +48,7 @@ def play_audio(text):
 
 ''' MAIN '''
 def main(from_error=False, text=None, debug_camera=False):
-    print("☕ Waking David up...")
+    print("☕ Waking David up... (narrator)")
 
     time.sleep(2) # Wait for camera
     reader = get_camera('<video0>')
@@ -85,6 +87,7 @@ def main(from_error=False, text=None, debug_camera=False):
             text = analyze_image(base64_image, client, script=script)
 
         try:
+            text = cut_to_n_words(text, int(MAX_TOKENS*5/4))
             print("🎙️ David says:")
             print(text)
             play_audio(text)

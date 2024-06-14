@@ -11,8 +11,10 @@ from pyht.client import TTSOptions
 from pyht.protos import api_pb2
 import simpleaudio as sa
 
-from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture
+from common_utils import maybe_start_alternative_narrator, generate_new_line, get_camera, encode_image, capture, cut_to_n_words
 import audio_feedback
+
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS"))
 
 AUDIO_GENERATION_SAMPLE_RATE=22050
 MAX_MINUTES_PER_AUDIO=4
@@ -29,8 +31,7 @@ async def analyze_image_async(base64_image, clientOpenAI, script):
         ]
         + script
         + generate_new_line(base64_image, len(script)==0),
-        max_tokens=180,
-        temperature=1.5
+        max_tokens=MAX_TOKENS
     )
     
     response_text = response.choices[0].message.content
@@ -87,7 +88,7 @@ def playht_options():
 
 '''MAIN'''
 async def async_main(from_error=False, text=None, debug_camera=False):
-    print("☕ Waking David up...")
+    print("☕ Waking David up... (instant narrator)")
 
     reader = get_camera('<video0>')
     # Wait for the camera to initialize and adjust light levels
@@ -127,6 +128,7 @@ async def async_main(from_error=False, text=None, debug_camera=False):
             text = await analyze_image_async(base64_image, client, script=script)
         
         try:
+            text = cut_to_n_words(text, int(MAX_TOKENS*5/4))
             print("🎙️ David says:")
             print(text)
             await async_play_audio(clientPlayHT.tts(text, voice_engine="PlayHT2.0-turbo", options=options))
