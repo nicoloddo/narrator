@@ -29,7 +29,8 @@ async def analyze_image_async(base64_image, clientOpenAI, script):
         ]
         + script
         + generate_new_line(base64_image, len(script)==0),
-        max_tokens=300,
+        max_tokens=180,
+        temperature=1.5
     )
     
     response_text = response.choices[0].message.content
