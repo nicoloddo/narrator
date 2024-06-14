@@ -22,7 +22,8 @@ if [[ "$1" == "--narrator" ]]; then
     shift
     # Run narrator.py with all remaining arguments
     echo "Running narrator.py"
-    python narrator.py "$@"
+    python instant_narrator.py "$@" # uncomment this and comment the next line when you want to default to the instant narrator
+    #python narrator.py "$@"
 elif [[ "$1" == "--instant_narrator" ]]; then
     # Remove the first argument and pass the rest
     shift
