@@ -28,7 +28,7 @@ class PlayHTProvider(AsyncTTSProvider):
         """Initialize the PlayHT API client."""
         if not self._initialized:
             self.client = AsyncClient(
-                env.get("PLAYHT_USER_ID"), env.get("PLAYHT_API_KEY")
+                user_id=env.get("PLAYHT_USER_ID"), api_key=env.get("PLAYHT_API_KEY")
             )
             self._initialized = True
 
