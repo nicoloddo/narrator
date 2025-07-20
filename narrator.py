@@ -196,9 +196,11 @@ def main(
     reader.close()  # Turn off the camera
 
     if tts_error_occurred:
+        print(f"TTS error occurred: {tts_error}")
+
         # Try alternative provider
         alternative_provider = (
-            "playht" if tts_provider.provider_name == "elevenlabs" else "elevenlabs"
+            "playht" if tts_provider.provider_name == "ElevenLabs" else "elevenlabs"
         )
         print(f"Trying alternative TTS provider: {alternative_provider}")
 
