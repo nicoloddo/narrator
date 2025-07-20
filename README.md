@@ -23,20 +23,11 @@ Then, install the dependencies:
 pip install -r requirements.txt
 ```
 
-Make an [OpenAI](https://beta.openai.com/) and [ElevenLabs](https://elevenlabs.io) account and set your tokens in a new .sh script named:
-```
-setenv.sh
-```
-with this content:
-```
-export OPENAI_API_KEY=<openai-key>
-export ELEVENLABS_API_KEY=<eleven-key>
-```
-If you want to use the instant narrator, make an account at PlayHT and set your tokens in the same setenv.sh:
-```
-export PLAYHT_USER_ID=<playht-user>
-export PLAYHT_API_KEY=<playht-key>
-```
+Make an [OpenAI](https://beta.openai.com/) and [ElevenLabs](https://elevenlabs.io) account and set your tokens in a .env file. You can fill in the variables as suggested in the .env.example.
+
+If you want to use an alternative narrator like playht, make an account at PlayHT and set your tokens in the same .env.
+
+The .env files must be copied into the raspberry for the application to work. Pulling this repository will not include the .env file nor any custom agent that you added to the agents folder.
 
 Then make the run.sh script executable:
 ```bash
@@ -49,7 +40,7 @@ chmod +x run.sh
 ```
 OR:
 ```bash
-./run --instant_narrator
+./run --playht_narrator
 ```
 Note that if one gives an error, the other will start. The --option only gives the opportunity to specify which one to start as default narrator.
 
@@ -77,15 +68,18 @@ journalctl -u narrator.service
 ## Optional modifications:
 
 ### To change voice:
-Make a new voice in Eleven and get the voice id of that voice using their [get voices](https://elevenlabs.io/docs/api-reference/voices) API, or by clicking the flask icon next to the voice in the VoiceLab tab.
+Make a new voice in Eleven Labs and get the voice id of that voice using their [get voices](https://elevenlabs.io/docs/api-reference/voices) API, or by clicking the flask icon next to the voice in the VoiceLab tab.
 
-Then change the agent.sh file to the id you prefer.
+Add an agent.env in the agents folder with new.
 ```
-export ELEVENLABS_VOICE_ID=<voice-id>
-export PLAYHT_VOICE_ID=<voice-id>
+ELEVENLABS_VOICE_ID=<voice-id>
+```
+If using alt providers:
+```
+PLAYHT_VOICE_ID=<voice-id>
 ```
 
-Inside the agent.sh you can also change:
+Inside the agent.env you can also change:
 - the system prompt of the agent, 
 - the first prompt and the recurring prompt to the agent,
 - the amount of times the agent will speak before turning off.
@@ -111,4 +105,4 @@ Then run the software:
 python narrator.py
 ```
 
-These steps are automated by simply running the run.sh or run_instant_narrator.sh file.
+These steps are automated by simply running the run.sh.

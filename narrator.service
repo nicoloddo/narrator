@@ -1,21 +1,21 @@
 [Unit]
-Description=David Attenborough narrates your life
+Description=Knoll.
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=oneshot
-User=ananaspi
-Environment="HOME=/home/ananaspi"
-Environment="XAUTHORITY=/home/ananaspi/.Xauthority"
-Environment="PATH=/home/ananaspi/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games"
+User=knoll
+Environment="HOME=/home/knoll"
+Environment="XAUTHORITY=/home/knoll/.Xauthority"
+Environment="PATH=/home/knoll/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games"
 Environment="NO_AT_BRIDGE=1"
 Environment="XDG_SESSION_TYPE=tty"
 Environment="XDG_SESSION_CLASS=user"
 Environment="XDG_RUNTIME_DIR=/run/user/1000"
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
-WorkingDirectory=/home/ananaspi/Projects/narrator
-ExecStart=/bin/bash /home/ananaspi/Projects/narrator/run.sh --narrator
+WorkingDirectory=/home/knoll/Projects/knoll-narrator
+ExecStart=/bin/bash /home/knoll/Projects/knoll-narrator/run.sh --narrator
 RemainAfterExit=true
 Restart=no
 

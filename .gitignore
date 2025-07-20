@@ -8,3 +8,8 @@
 howtorun.txt
 .spyproject/
 __pycache__/
+requests/
+setenv.sh
+
+# Agents to keep private
+piers.env

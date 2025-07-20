@@ -25,6 +25,18 @@ def make_arguments(parser_description):
         help="If you want to debug the camera."
     )
 
+    parser.add_argument(
+        "--debug-chat",
+        action="store_true",
+        help="If you want to debug the chat model."
+    )
+    
+    parser.add_argument(
+        "--manual-triggering",
+        action="store_true",
+        help="If you want to trigger manually the agent using a AWS queue system."
+    )
+
     args = parser.parse_args()
 
     # Conditional requirement check

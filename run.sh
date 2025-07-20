@@ -13,8 +13,6 @@ done
 git pull
 
 source venv/bin/activate
-. setenv.sh
-. agent.sh
 
 # Check command line arguments
 if [[ "$1" == "--narrator" ]]; then
@@ -22,15 +20,15 @@ if [[ "$1" == "--narrator" ]]; then
     shift
     # Run narrator.py with all remaining arguments
     echo "Running narrator.py"
-    python instant_narrator.py "$@" # uncomment this and comment the next line when you want to default to the instant narrator
+    python narrator.py "$@" # uncomment this and comment the next line when you want to default to the instant narrator
     #python narrator.py "$@"
-elif [[ "$1" == "--instant_narrator" ]]; then
+elif [[ "$1" == "--playht_narrator" ]]; then
     # Remove the first argument and pass the rest
     shift
-    # Run instant_narrator.py with all remaining arguments
-    echo "Running instant_narrator.py"
-    python instant_narrator.py "$@"
+    # Run alt_narrator_providers/playht_narrator.py with all remaining arguments
+    echo "Running playht_narrator.py"
+    python alt_narrator_providers/playht_narrator.py "$@"
 else
-    echo "Invalid argument. Please use --narrator or --instant_narrator."
+    echo "Invalid argument. Please use --narrator or --playht_narrator."
     exit 1
 fi

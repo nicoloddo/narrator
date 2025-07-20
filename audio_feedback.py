@@ -35,3 +35,6 @@ def cant_see():
 	play_audio("icantsee.wav")
 def i_see():
 	play_audio("isee.wav")
+    
+def new_turn():
+	play_audio("new_turn.wav")
