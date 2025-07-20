@@ -6,9 +6,6 @@ import json
 
 from openai import OpenAI
 
-from elevenlabs import generate, play, set_api_key, voices, RateLimitError
-from elevenlabs import Voice, VoiceSettings
-
 from environment_selector import env
 from common_utils import (
     maybe_start_alternative_narrator,
@@ -20,6 +17,8 @@ from common_utils import (
 )
 import audio_feedback
 import db_parser as db
+from providers.provider_factory import ProviderFactory
+from providers.base_provider import TTSProvider, AsyncTTSProvider
 
 MAX_TOKENS = int(env.get("MAX_TOKENS"))
 
@@ -74,35 +73,6 @@ def generate_new_line(mode, message, base64_image, first_prompt_bool):
     ]
 
 
-""" TTS """
-
-
-def play_audio(mode, text):
-    audio = generate(
-        text,
-        voice=Voice(
-            voice_id=env.get("ELEVENLABS_VOICE_ID", mode),
-            settings=VoiceSettings(
-                stability=float(env.get("ELEVENLABS_STABILITY", mode)),
-                similarity_boost=float(env.get("ELEVENLABS_SIMILARITY", mode)),
-                style=float(env.get("ELEVENLABS_STYLE", mode)),
-                use_speaker_boost=True,
-            ),
-        ),
-        model="eleven_multilingual_v2",
-    )
-
-    unique_id = base64.urlsafe_b64encode(os.urandom(30)).decode("utf-8").rstrip("=")
-    dir_path = os.path.join("narration", unique_id)
-    os.makedirs(dir_path, exist_ok=True)
-    file_path = os.path.join(dir_path, "audio.wav")
-
-    with open(file_path, "wb") as f:
-        f.write(audio)
-
-    play(audio)
-
-
 """ MAIN """
 
 
@@ -112,6 +82,7 @@ def main(
     debug_camera=False,
     debug_chat=False,
     manual_triggering=False,
+    provider_name=None,
 ):
     manual_triggering = True  # This version of narrator requires manual_triggering
 
@@ -130,9 +101,6 @@ def main(
     # OpenAI client initialization
     client = OpenAI()
 
-    # ElevenLabs API initialization
-    set_api_key(env.get("ELEVENLABS_API_KEY"))
-
     max_times = int(env.get("MAX_TIMES"))
     count = 0
 
@@ -142,7 +110,19 @@ def main(
 
     script = []
     message = None
-    while count != max_times:
+
+    # Initialize TTS provider
+    tts_provider = None
+    try:
+        tts_provider = ProviderFactory.create_provider(provider_name)
+        tts_provider.initialize()
+        print(f"🎵 Using {tts_provider.provider_name} TTS provider")
+    except Exception as e:
+        print(f"Failed to initialize TTS provider: {e}")
+        tts_error_occurred = True
+        tts_error = e
+
+    while count != max_times and not tts_error_occurred:
 
         if manual_triggering:
             # Check triggering
@@ -187,8 +167,8 @@ def main(
             print(len(text))
             print(count_tokens(text))
             text = cut_to_n_words(text, int(MAX_TOKENS * 5 / 4))
-            if not debug_chat:
-                play_audio(mode, text)
+            if not debug_chat and tts_provider:
+                tts_provider.play_audio(text)
 
         except Exception as e:
             tts_error_occurred = True
@@ -202,6 +182,13 @@ def main(
 
         count += 1
 
+    # Cleanup
+    if tts_provider:
+        try:
+            tts_provider.cleanup()
+        except Exception as e:
+            print(f"Warning: Error during TTS provider cleanup: {e}")
+
     # Turning off
     if not tts_error_occurred:
         audio_feedback.turnoff()
@@ -209,9 +196,25 @@ def main(
     reader.close()  # Turn off the camera
 
     if tts_error_occurred:
-        maybe_start_alternative_narrator(
-            tts_error, from_error, text, "alt_narrator_providers/playht_narrator.py"
+        # Try alternative provider
+        alternative_provider = (
+            "playht" if tts_provider.provider_name == "elevenlabs" else "elevenlabs"
         )
+        print(f"Trying alternative TTS provider: {alternative_provider}")
+
+        # Start alternative narrator with different provider
+        import subprocess
+
+        command = [
+            "python",
+            "narrator.py",
+            "--from-error",
+            "--text",
+            text,
+            "--provider-name",
+            alternative_provider,
+        ]
+        subprocess.run(command)
     else:
         print(f"Reached the maximum of {max_times}... turning off the narrator.")
     sys.exit(0)

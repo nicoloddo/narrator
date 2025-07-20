@@ -1,5 +1,6 @@
 import argparse
 
+
 def make_arguments(parser_description):
     parser = argparse.ArgumentParser(description=parser_description)
 
@@ -7,7 +8,7 @@ def make_arguments(parser_description):
     parser.add_argument(
         "--from-error",
         action="store_true",
-        help="If the script was run from an error of another narrator. It stores the Boolean value True if the specified argument is present in the command line and False otherwise."
+        help="If the script was run from an error of another narrator. It stores the Boolean value True if the specified argument is present in the command line and False otherwise.",
     )
 
     # Text is conditionally required
@@ -15,26 +16,29 @@ def make_arguments(parser_description):
         "--text",
         type=str,
         default=None,
-        help="Text to say at first instance of speech. Required if --from-error is True."
+        help="Text to say at first instance of speech. Required if --from-error is True.",
     )
 
     # Boolean
     parser.add_argument(
-        "--debug-camera",
-        action="store_true",
-        help="If you want to debug the camera."
+        "--debug-camera", action="store_true", help="If you want to debug the camera."
     )
 
     parser.add_argument(
-        "--debug-chat",
-        action="store_true",
-        help="If you want to debug the chat model."
+        "--debug-chat", action="store_true", help="If you want to debug the chat model."
     )
-    
+
     parser.add_argument(
         "--manual-triggering",
         action="store_true",
-        help="If you want to trigger manually the agent using a AWS queue system."
+        help="If you want to trigger manually the agent using a AWS queue system.",
+    )
+
+    parser.add_argument(
+        "--provider-name",
+        type=str,
+        default=None,
+        help="TTS provider to use (elevenlabs, playht). If not specified, uses TTS_PROVIDER env var or defaults to elevenlabs.",
     )
 
     args = parser.parse_args()

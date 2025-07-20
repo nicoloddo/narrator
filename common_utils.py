@@ -39,11 +39,15 @@ def maybe_start_alternative_narrator(e, from_error, text, alternative_narrator):
 """ LLM UTILS """
 
 
-def generate_new_line(mode, base64_image, first_prompt_bool):
+def generate_new_line(mode, message, base64_image, first_prompt_bool):
     if first_prompt_bool:
         prompt = env.get("FIRST_IMAGE_PROMPT", mode)
     else:
         prompt = env.get("NEW_IMAGE_PROMPT", mode)
+
+    if message and message.get("mode") == "ask_davide":
+        if message.get("content"):
+            prompt += f"\n\nThe person asks: {message['content']}. "
 
     return [
         {
