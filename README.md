@@ -65,6 +65,8 @@ Or for more extensive logs with:
 journalctl -u narrator.service
 ```
 
+You can debug the camera and calibrate its parameters by running the narrator.py with the camera-debug flag.
+
 ## Optional modifications:
 
 ### To change voice:
