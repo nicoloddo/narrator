@@ -14,21 +14,45 @@ git pull
 
 source venv/bin/activate
 
-# Check command line arguments
-if [[ "$1" == "--narrator" ]]; then
-    # Remove the first argument and pass the rest
-    shift
-    # Run narrator.py with all remaining arguments
-    echo "Running narrator.py"
-    python narrator.py "$@" # uncomment this and comment the next line when you want to default to the instant narrator
-    #python narrator.py "$@"
-elif [[ "$1" == "--playht_narrator" ]]; then
-    # Remove the first argument and pass the rest
-    shift
-    # Run alt_narrator_providers/playht_narrator.py with all remaining arguments
-    echo "Running playht_narrator.py"
-    python alt_narrator_providers/playht_narrator.py "$@"
+# Initialize variables
+PROVIDER=""
+NARRATOR_ARGS=""
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --provider)
+            PROVIDER="$2"
+            shift 2
+            ;;
+        --provider=*)
+            PROVIDER="${1#*=}"
+            shift
+            ;;
+        *)
+            # Collect all other arguments for narrator.py
+            NARRATOR_ARGS="$NARRATOR_ARGS $1"
+            shift
+            ;;
+    esac
+done
+
+# Build the command
+CMD="python narrator.py"
+
+# Add provider if specified
+if [[ -n "$PROVIDER" ]]; then
+    CMD="$CMD --provider-name $PROVIDER"
+    echo "Running narrator.py with $PROVIDER provider"
 else
-    echo "Invalid argument. Please use --narrator or --playht_narrator."
-    exit 1
+    echo "Running narrator.py with default provider"
 fi
+
+# Add any remaining arguments
+if [[ -n "$NARRATOR_ARGS" ]]; then
+    CMD="$CMD $NARRATOR_ARGS"
+fi
+
+# Execute the command
+echo "Command: $CMD"
+eval $CMD

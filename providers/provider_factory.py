@@ -32,7 +32,7 @@ class ProviderFactory:
             ValueError: If provider_name is not supported
         """
         if provider_name is None:
-            provider_name = os.environ.get("TTS_PROVIDER", "elevenlabs").lower()
+            provider_name = os.environ.get("TTS_PROVIDER", "playht").lower()
 
         provider_name = provider_name.lower()
 
