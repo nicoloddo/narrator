@@ -51,7 +51,7 @@ def generate_new_line(mode, message, base64_image, first_prompt_bool):
     else:
         prompt = env.get("NEW_IMAGE_PROMPT", mode)
 
-    if message["mode"] == "ask_roberto":
+    if message["mode"] == "ask_davide":
         prompt += f"\n\nThe person asks: {message['content']}. "
 
     # Here you can put additions to the prompt based on the content if you want

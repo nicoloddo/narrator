@@ -80,18 +80,18 @@ class Environment:
 
     def mode_selector(self, mode):
 
-        if mode == "ask_roberto":
-            dotenv.load_dotenv("agents/roberto.env")
-            self.AGENT_NAME = os.environ.get("ROBERTO_AGENT_NAME")
+        if mode == "ask_davide":
+            dotenv.load_dotenv("agents/davide.env")
+            self.AGENT_NAME = os.environ.get("DAVIDE_AGENT_NAME")
 
-            self.AGENT_PROMPT = os.environ.get("ROBERTO_AGENT_PROMPT")
-            self.ELEVENLABS_VOICE_ID = os.environ.get("ROBERTO_ELEVENLABS_VOICE_ID")
+            self.AGENT_PROMPT = os.environ.get("DAVIDE_AGENT_PROMPT")
+            self.ELEVENLABS_VOICE_ID = os.environ.get("DAVIDE_ELEVENLABS_VOICE_ID")
 
-            self.FIRST_IMAGE_PROMPT = os.environ.get("ROBERTO_FIRST_IMAGE_PROMPT")
-            self.NEW_IMAGE_PROMPT = os.environ.get("ROBERTO_NEW_IMAGE_PROMPT")
+            self.FIRST_IMAGE_PROMPT = os.environ.get("DAVIDE_FIRST_IMAGE_PROMPT")
+            self.NEW_IMAGE_PROMPT = os.environ.get("DAVIDE_NEW_IMAGE_PROMPT")
 
-            self.ELEVENLABS_STABILITY = os.environ.get("ROBERTO_ELEVENLABS_STABILITY")
-            self.ELEVENLABS_SIMILARITY = os.environ.get("ROBERTO_ELEVENLABS_SIMILARITY")
+            self.ELEVENLABS_STABILITY = os.environ.get("DAVIDE_ELEVENLABS_STABILITY")
+            self.ELEVENLABS_SIMILARITY = os.environ.get("DAVIDE_ELEVENLABS_SIMILARITY")
 
         if mode == "ask_bortis":
             dotenv.load_dotenv("agents/bortis.env")
