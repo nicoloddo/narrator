@@ -154,7 +154,7 @@ def main(
             content = record["content"]
             mode = record["mode"]
 
-            agent_name = env.get("AGENT_NAME")
+            agent_name = env.get("AGENT_NAME", mode)
             message = {
                 "content": content,
                 "mode": mode,
