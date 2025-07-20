@@ -94,6 +94,8 @@ class Environment:
             self.ELEVENLABS_SIMILARITY = os.environ.get("DAVIDE_ELEVENLABS_SIMILARITY")
             self.ELEVENLABS_STYLE = os.environ.get("DAVIDE_ELEVENLABS_STYLE")
 
+            self.PLAYHT_VOICE_ID = os.environ.get("DAVIDE_PLAYHT_VOICE_ID")
+
         if mode == "ask_bortis":
             dotenv.load_dotenv("agents/bortis.env")
             self.AGENT_NAME = os.environ.get("BORTIS_AGENT_NAME")

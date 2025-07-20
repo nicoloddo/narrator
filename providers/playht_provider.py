@@ -7,6 +7,7 @@ from pyht.async_client import AsyncClient
 from pyht.client import TTSOptions
 from pyht.protos import api_pb2
 import simpleaudio as sa
+from environment_selector import env
 
 from .base_provider import AsyncTTSProvider
 
@@ -27,9 +28,8 @@ class PlayHTProvider(AsyncTTSProvider):
         """Initialize the PlayHT API client."""
         if not self._initialized:
             self.client = AsyncClient(
-                os.environ.get("PLAYHT_USER_ID"), os.environ.get("PLAYHT_API_KEY")
+                env.get("PLAYHT_USER_ID"), env.get("PLAYHT_API_KEY")
             )
-            self.options = self._create_playht_options()
             self._initialized = True
 
     async def play_audio_async(self, text: str) -> None:
@@ -37,6 +37,7 @@ class PlayHTProvider(AsyncTTSProvider):
         if not self._initialized:
             await self.initialize_async()
 
+        self.options = self._create_playht_options()
         await self._async_play_audio(
             self.client.tts(text, voice_engine="PlayHT2.0-turbo", options=self.options)
         )
