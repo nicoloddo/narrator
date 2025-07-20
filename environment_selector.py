@@ -22,6 +22,8 @@ class Environment:
     ELEVENLABS_STYLE = None
 
     ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
+    PLAYHT_USER_ID = os.environ.get("PLAYHT_USER_ID")
+    PLAYHT_API_KEY = os.environ.get("PLAYHT_API_KEY")
     MAX_TOKENS = os.environ.get("MAX_TOKENS")
     MAX_TIMES = os.environ.get("MAX_TIMES")
     AWS_QUEUE_API_KEY = os.environ.get("AWS_QUEUE_API_KEY")
