@@ -92,6 +92,7 @@ class Environment:
 
             self.ELEVENLABS_STABILITY = os.environ.get("DAVIDE_ELEVENLABS_STABILITY")
             self.ELEVENLABS_SIMILARITY = os.environ.get("DAVIDE_ELEVENLABS_SIMILARITY")
+            self.ELEVENLABS_STYLE = os.environ.get("DAVIDE_ELEVENLABS_STYLE")
 
         if mode == "ask_bortis":
             dotenv.load_dotenv("agents/bortis.env")
