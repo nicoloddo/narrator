@@ -80,6 +80,15 @@ class Environment:
         elif key == "ELEVENLABS_STYLE":
             return self.ELEVENLABS_STYLE
 
+        elif key == "PLAYHT_VOICE_ID":
+            return self.PLAYHT_VOICE_ID
+
+        elif key == "PLAYHT_USER_ID":
+            return self.PLAYHT_USER_ID
+
+        elif key == "PLAYHT_API_KEY":
+            return self.PLAYHT_API_KEY
+
     def mode_selector(self, mode):
 
         if mode == "ask_davide":
