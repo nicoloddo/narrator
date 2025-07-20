@@ -26,7 +26,7 @@ MAX_TOKENS = int(env.get("MAX_TOKENS"))
 """ LLM HANDLING """
 
 
-def analyze_image(mode, contenuto, base64_image, client, script):
+def analyze_image(mode, content, base64_image, client, script):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -37,7 +37,7 @@ def analyze_image(mode, contenuto, base64_image, client, script):
         ]
         + script
         + generate_new_line(
-            mode, contenuto, base64_image, len(script) == 0
+            mode, content, base64_image, len(script) == 0
         ),  # If the script is empty this is the starting image
         max_tokens=MAX_TOKENS,
     )
@@ -45,19 +45,13 @@ def analyze_image(mode, contenuto, base64_image, client, script):
     return response_text
 
 
-def generate_new_line(mode, contenuto, base64_image, first_prompt_bool):
+def generate_new_line(mode, content, base64_image, first_prompt_bool):
     if first_prompt_bool:
         prompt = env.get("FIRST_IMAGE_PROMPT", mode)
     else:
         prompt = env.get("NEW_IMAGE_PROMPT", mode)
 
-    if mode == "oracolo":
-        prompt += (
-            f"Il mio nome è {contenuto['nome']}. Ti chiedo questo: "
-            + contenuto["richiesta"]
-        )
-    elif mode == "giudicami":
-        prompt += contenuto["nome"]
+    # Here you can put additions to the prompt based on the content if you want
 
     return [
         {
@@ -117,7 +111,9 @@ def main(
 ):
     manual_triggering = True  # This version of narrator requires manual_triggering
 
-    print("☕ Waking up Roberto... (narrator)")
+    agent_name = env.get("AGENT_NAME")
+
+    print(f"☕ Waking up {agent_name}... (narrator)")
 
     # Start camera.
     reader = get_camera("<video0>")
@@ -154,33 +150,15 @@ def main(
             with open(f"requests/{record['id']}.json", "w+") as file:
                 json.dump(record, file, indent=4)
 
-            contenuto = record["contenuto"]
-            mode = record["azione"]
-            if mode == "giudizio":
-                mode = record["contenuto"]["modalita"]
+            content = record["content"]
+            mode = record["mode"]
             print()
-            print("Nuova richiesta con contenuto:")
-            print(contenuto)
-            admin = contenuto["admin"]
-            if isinstance(admin, str):
-                admin = True if admin == "true" else False
-
-            if not admin:
-                if mode == "reliquia":
-                    continue
-                if contenuto["nome"] == last_record_name:
-                    if last_record_time is not None:
-                        if (
-                            time.time() - last_record_time
-                        ) < 300:  # 300 seconds = 5 minutes:
-                            print("Alterniamoci ragazzi!")
-                            audio_feedback.new_turn()
-                            continue
-
+            print("New request with content:")
+            print(content)
             # New request received.
         else:
             mode = ""
-            contenuto = {}
+            content = {}
             raise Exception(
                 "This version of the narrator doesn't work without manual-triggering"
             )
@@ -189,14 +167,14 @@ def main(
             text = text
         else:
             # analyze posture
-            print("👀 Roberto is looking...")
+            print(f"👀 {agent_name} is looking...")
             base64_image = capture(reader)
 
-            print("🧠 Roberto is thinking...")
-            text = analyze_image(mode, contenuto, base64_image, client, script=script)
+            print(f"🧠 {agent_name} is thinking...")
+            text = analyze_image(mode, content, base64_image, client, script=script)
 
         try:
-            print("🎙️ Roberto says:")
+            print(f"🎙️ {agent_name} says:")
             print(text)
             print(len(text))
             print(count_tokens(text))
@@ -211,9 +189,7 @@ def main(
 
         script = script + [{"role": "assistant", "content": text}]
 
-        print("😝 Roberto is taking a break...")
-        last_record_name = contenuto["nome"]
-        last_record_time = time.time()
+        print(f"😝 {agent_name} is taking a break...")
         time.sleep(1)  # Wait a bit before sending a new image
 
         count += 1
