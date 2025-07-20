@@ -83,9 +83,9 @@ def play_audio(mode, text):
         voice=Voice(
             voice_id=env.get("ELEVENLABS_VOICE_ID", mode),
             settings=VoiceSettings(
-                stability=float(env.get("ELEVENLABS_STABILITY")),
-                similarity_boost=float(env.get("ELEVENLABS_SIMILARITY")),
-                style=float(env.get("ELEVENLABS_STYLE")),
+                stability=float(env.get("ELEVENLABS_STABILITY", mode)),
+                similarity_boost=float(env.get("ELEVENLABS_SIMILARITY", mode)),
+                style=float(env.get("ELEVENLABS_STYLE", mode)),
                 use_speaker_boost=True,
             ),
         ),
@@ -115,9 +115,7 @@ def main(
 ):
     manual_triggering = True  # This version of narrator requires manual_triggering
 
-    agent_name = env.get("AGENT_NAME")
-
-    print(f"☕ Waking up {agent_name}... (narrator)")
+    print(f"☕ Waking up the narrator... (narrator)")
 
     # Start camera.
     reader = get_camera("<video0>")
@@ -155,6 +153,8 @@ def main(
 
             content = record["content"]
             mode = record["mode"]
+
+            agent_name = env.get("AGENT_NAME")
             message = {
                 "content": content,
                 "mode": mode,
@@ -165,6 +165,7 @@ def main(
             # New request received.
         else:
             mode = ""
+            agent_name = "Unknown"
             content = {}
             raise Exception(
                 "This version of the narrator doesn't work without manual-triggering"
@@ -209,7 +210,7 @@ def main(
 
     if tts_error_occurred:
         maybe_start_alternative_narrator(
-            tts_error, from_error, text, ".alt_narrator_providers/playht_narrator.py"
+            tts_error, from_error, text, "alt_narrator_providers/playht_narrator.py"
         )
     else:
         print(f"Reached the maximum of {max_times}... turning off the narrator.")
