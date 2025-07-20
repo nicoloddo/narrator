@@ -26,7 +26,7 @@ MAX_TOKENS = int(env.get("MAX_TOKENS"))
 """ LLM HANDLING """
 
 
-def analyze_image(mode, content, base64_image, client, script):
+def analyze_image(mode, message, base64_image, client, script):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -37,7 +37,7 @@ def analyze_image(mode, content, base64_image, client, script):
         ]
         + script
         + generate_new_line(
-            mode, content, base64_image, len(script) == 0
+            mode, message, base64_image, len(script) == 0
         ),  # If the script is empty this is the starting image
         max_tokens=MAX_TOKENS,
     )
@@ -45,11 +45,14 @@ def analyze_image(mode, content, base64_image, client, script):
     return response_text
 
 
-def generate_new_line(mode, content, base64_image, first_prompt_bool):
+def generate_new_line(mode, message, base64_image, first_prompt_bool):
     if first_prompt_bool:
         prompt = env.get("FIRST_IMAGE_PROMPT", mode)
     else:
         prompt = env.get("NEW_IMAGE_PROMPT", mode)
+
+    if message["mode"] == "ask_roberto":
+        prompt += f"\n\nThe person asks: {message['content']}. "
 
     # Here you can put additions to the prompt based on the content if you want
 
@@ -139,8 +142,7 @@ def main(
     tts_error = None
 
     script = []
-    last_record_name = ""
-    last_record_time = None
+    message = None
     while count != max_times:
 
         if manual_triggering:
@@ -152,8 +154,12 @@ def main(
 
             content = record["content"]
             mode = record["mode"]
+            message = {
+                "content": content,
+                "mode": mode,
+            }
             print()
-            print("New request with content:")
+            print(f"New {mode} request with content:")
             print(content)
             # New request received.
         else:
@@ -171,7 +177,7 @@ def main(
             base64_image = capture(reader)
 
             print(f"🧠 {agent_name} is thinking...")
-            text = analyze_image(mode, content, base64_image, client, script=script)
+            text = analyze_image(mode, message, base64_image, client, script=script)
 
         try:
             print(f"🎙️ {agent_name} says:")
