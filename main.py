@@ -57,9 +57,6 @@ def make_arguments(parser_description):
     if args.from_error and not args.text:
         parser.error("--text is required when --from-error is specified.")
 
-    # Handle continue_on_error logic
-    if args.no_continue_on_error:
-        args.continue_on_error = False
     # Convert hyphenated argument to underscore for Python
     args.continue_on_error = getattr(args, "continue_on_error", True)
 
