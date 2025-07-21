@@ -117,6 +117,7 @@ class Narrator:
         while not self.shutdown_event.is_set():
             try:
                 # Fetch new record
+                print("Waiting for a message...")
                 record_data = await db.fetch_record(self.debug_chat)
 
                 if record_data:
@@ -350,8 +351,8 @@ class Narrator:
 
             # Create concurrent tasks
             tasks = [
-                asyncio.create_task(self._record_processing_task()),
                 asyncio.create_task(self._camera_capture_task()),
+                asyncio.create_task(self._record_processing_task()),
             ]
 
             # Run tasks until shutdown or error

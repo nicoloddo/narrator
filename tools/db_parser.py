@@ -39,51 +39,46 @@ def process_message(message):
 
 
 async def fetch_record(verbose=False):
-    print("Waiting for a message.")
-    while True:
-        try:
-            # Receive messages from SQS FIFO queue
-            response = sqs.receive_message(
-                QueueUrl=queue_url,
-                MaxNumberOfMessages=1,
-                WaitTimeSeconds=0,  # Short polling
-                AttributeNames=["MessageGroupId"],
-            )
+    try:
+        # Receive messages from SQS FIFO queue
+        response = sqs.receive_message(
+            QueueUrl=queue_url,
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=0,  # Short polling
+            AttributeNames=["MessageGroupId"],
+        )
 
-            # Process message if received
-            messages = response.get("Messages", [])
-            if messages:
-                message = messages[0]
+        # Process message if received
+        messages = response.get("Messages", [])
+        if messages:
+            message = messages[0]
+            if verbose:
+                print(f"New message: {message}")
+            try:
+                record = process_message(message)
+
+                # Delete the message from the queue after successful processing
+                sqs.delete_message(
+                    QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
+                )
                 if verbose:
-                    print(f"New message: {message}")
-                try:
-                    record = process_message(message)
-
-                    # Delete the message from the queue after successful processing
-                    sqs.delete_message(
-                        QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
+                    print(
+                        f"Successfully processed and deleted message: {message['MessageId']}"
                     )
-                    if verbose:
-                        print(
-                            f"Successfully processed and deleted message: {message['MessageId']}"
-                        )
-                        print(
-                            f"Message Group ID: {message['Attributes']['MessageGroupId']}"
-                        )
+                    print(
+                        f"Message Group ID: {message['Attributes']['MessageGroupId']}"
+                    )
 
-                    return record
+                return record
 
-                except Exception as e:
-                    print(f"Error processing message {message['MessageId']}: {e}")
-                    # Message will return to the queue after visibility timeout
-            else:
-                if verbose:
-                    # print("No messages found.")
-                    pass
+            except Exception as e:
+                print(f"Error processing message {message['MessageId']}: {e}")
+                # Message will return to the queue after visibility timeout
+        else:
+            if verbose:
+                # print("No messages found.")
+                pass
 
-            # Wait for 1 second before the next request
-            await asyncio.sleep(1)
-
-        except ClientError as e:
-            print(f"An error occurred: {e}")
-            await asyncio.sleep(5)  # Wait a bit longer on errors
+    except ClientError as e:
+        print(f"An error occurred: {e}")
+        await asyncio.sleep(5)  # Wait a bit longer on errors
