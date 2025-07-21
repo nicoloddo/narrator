@@ -139,6 +139,8 @@ class Narrator:
                 print(f"Error in record processing: {e}")
                 await asyncio.sleep(2)
 
+        print("🔄 Shutdown event received. Shutting down record processing task.")
+
     async def _camera_capture_task(self):
         """Handle camera captures based on current mode configuration."""
         print("📸 Starting camera capture task...")
@@ -190,6 +192,8 @@ class Narrator:
             except Exception as e:
                 print(f"Error in camera capture task: {e}")
                 await asyncio.sleep(2)
+
+        print("🔄 Shutdown event received. Shutting down camera capture task.")
 
     async def _handle_new_record(self, record_data: dict) -> RecordModel:
         """Process new record and update mode."""
@@ -400,6 +404,9 @@ class Narrator:
             if self.reader:
                 loop = asyncio.get_running_loop()
                 await loop.run_in_executor(None, self.reader.close)
+
+            if self.tts_error_occurred:
+                await self.handle_tts_error(self.tts_error)
 
         except Exception as e:
             print(f"Warning: Error during cleanup: {e}")
