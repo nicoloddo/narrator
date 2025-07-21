@@ -16,14 +16,13 @@ class ProviderFactory:
 
     @classmethod
     def create_provider(
-        cls, provider_name: str = None, mode: str = ""
+        cls, provider_name: str = None
     ) -> Union[TTSProvider, AsyncTTSProvider]:
         """
         Create a TTS provider instance.
 
         Args:
             provider_name: Name of the provider to create. If None, uses TTS_PROVIDER env var.
-            mode: Mode to pass to the provider
 
         Returns:
             TTS provider instance
@@ -43,7 +42,7 @@ class ProviderFactory:
             )
 
         provider_class = cls.PROVIDERS[provider_name]
-        return provider_class(mode)
+        return provider_class()
 
     @classmethod
     def get_available_providers(cls) -> list[str]:
