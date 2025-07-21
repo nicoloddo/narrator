@@ -162,7 +162,7 @@ class Camera:
 
             # Small delay to avoid overwhelming the system
             if not movement_detected:
-                time.sleep(0.5)
+                time.sleep(1)
 
         # Movement detected! Save the frame and return
         path = os.path.join(self.frames_dir, "movement_frame.jpg")
