@@ -10,12 +10,12 @@ from openai import OpenAI, AsyncOpenAI
 from environment_selector import env
 from common_utils import (
     maybe_start_alternative_narrator,
-    get_camera,
-    encode_image,
-    capture,
     cut_to_n_words,
     count_tokens,
+    generate_new_line,
+    FRAMES_DIR,
 )
+from tools import Camera
 import audio_feedback
 import db_parser as db
 from providers.provider_factory import ProviderFactory
@@ -108,11 +108,21 @@ def main(
 
     print(f"☕ Waking up the narrator... (narrator)")
 
+    # Initialize camera with environment variables
+    camera = Camera(
+        frames_dir=FRAMES_DIR,
+        darkness_threshold=os.environ.get("DARKNESS_THRESHOLD"),
+        hue_uniformity_threshold=os.environ.get("HUE_UNIFORMITY_THRESHOLD"),
+        saturation_uniformity_threshold=os.environ.get(
+            "SATURATION_UNIFORMITY_THRESHOLD"
+        ),
+    )
+
     # Start camera.
-    reader = get_camera("<video0>")
+    reader = camera.get_camera("<video0>")
     # time.sleep(2) # Wait for the camera to initialize and adjust light levels
 
-    capture(reader, debugging=debug_camera)  # loop until camera shows something
+    camera.capture(reader, debugging=debug_camera)  # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
     if not from_error:
         print("👋 Hi!")
@@ -176,7 +186,7 @@ def main(
         else:
             # analyze posture
             print(f"👀 {agent_name} is looking...")
-            base64_image = capture(reader)
+            base64_image = camera.capture(reader)
 
             print(f"🧠 {agent_name} is thinking...")
             text = analyze_image(mode, message, base64_image, client, script=script)
@@ -255,11 +265,21 @@ async def async_main(
 
     print(f"☕ Waking up the async narrator... (narrator)")
 
+    # Initialize camera with environment variables
+    camera = Camera(
+        frames_dir=FRAMES_DIR,
+        darkness_threshold=os.environ.get("DARKNESS_THRESHOLD"),
+        hue_uniformity_threshold=os.environ.get("HUE_UNIFORMITY_THRESHOLD"),
+        saturation_uniformity_threshold=os.environ.get(
+            "SATURATION_UNIFORMITY_THRESHOLD"
+        ),
+    )
+
     # Start camera.
-    reader = get_camera("<video0>")
+    reader = camera.get_camera("<video0>")
     # time.sleep(2) # Wait for the camera to initialize and adjust light levels
 
-    capture(reader, debugging=debug_camera)  # loop until camera shows something
+    camera.capture(reader, debugging=debug_camera)  # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
     if not from_error:
         print("👋 Hi!")
@@ -327,7 +347,7 @@ async def async_main(
         else:
             # analyze posture
             print(f"👀 {agent_name} is looking...")
-            base64_image = capture(reader)
+            base64_image = camera.capture(reader)
 
             print(f"🧠 {agent_name} is thinking...")
             text = await analyze_image_async(
