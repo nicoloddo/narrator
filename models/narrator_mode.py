@@ -27,6 +27,7 @@ class NarratorMode(str, Enum):
     WAIT_FOR_INSTRUCTIONS = "wait_for_instructions"
     ASK_DAVIDE = "ask_davide"
     ASK_BORTIS = "ask_bortis"
+    LOOK_PIERSILVIO = "look_piersilvio"
     GENERAL_NARRATION = "general_narration"
     DEBUG = "debug"
     DEBUG_MOVEMENT = "debug_movement"
@@ -42,6 +43,7 @@ class ModeConfig(BaseModel):
     capture_mode: CaptureMode = CaptureMode.CONTINUOUS
     sleep_interval: float = 3.0  # seconds between captures in continuous mode
     description: str = ""
+    agent: str = "davide"  # Agent name for voice/personality (e.g., "davide", "bortis")
 
     class Config:
         use_enum_values = True
@@ -69,6 +71,7 @@ MODE_CONFIGS = {
         capture_mode=CaptureMode.RECORD_TRIGGERED,
         sleep_interval=1.0,
         description="Davide interaction mode, capture triggered by questions",
+        agent="davide",
     ),
     NarratorMode.ASK_BORTIS: ModeConfig(
         mode=NarratorMode.ASK_BORTIS,
@@ -76,6 +79,15 @@ MODE_CONFIGS = {
         capture_mode=CaptureMode.RECORD_TRIGGERED,
         sleep_interval=1.0,
         description="Bortis interaction mode, capture triggered by questions",
+        agent="bortis",
+    ),
+    NarratorMode.LOOK_PIERSILVIO: ModeConfig(
+        mode=NarratorMode.LOOK_PIERSILVIO,
+        camera_method=CameraMethod.STANDARD,
+        capture_mode=CaptureMode.RECORD_TRIGGERED,
+        sleep_interval=1.0,
+        description="Piersilvio interaction mode, capture triggered by questions",
+        agent="piersilvio",
     ),
     NarratorMode.GENERAL_NARRATION: ModeConfig(
         mode=NarratorMode.GENERAL_NARRATION,
