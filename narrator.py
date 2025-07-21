@@ -45,7 +45,7 @@ class Narrator:
         self.debug_movement = debug_movement
         self.debug_chat = debug_chat
         self.provider_name = provider_name
-        self.max_times = int(get_env_var("MAX_TIMES")) or float("inf")
+        self.max_times = float(get_env_var("MAX_TIMES") or "inf")
         self.count = 0
 
         # Initialize mode
