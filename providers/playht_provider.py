@@ -58,7 +58,7 @@ class PlayHTProvider(AsyncTTSProvider):
     def _create_playht_options(self) -> TTSOptions:
         """Create PlayHT TTS options."""
         return TTSOptions(
-            voice=os.environ.get("PLAYHT_VOICE_ID"),
+            voice=env.get("PLAYHT_VOICE_ID"),
             sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
             format=api_pb2.FORMAT_WAV,
             speed=0.9,
