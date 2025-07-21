@@ -9,6 +9,8 @@ import imageio
 
 import audio_feedback
 
+MOVEMENT_DEFAULT_THRESHOLD = 4
+
 
 class Camera:
     PRINT_DEBUG_EACH_N_FRAMES = 50
@@ -29,7 +31,9 @@ class Camera:
         self.hue_uniformity_threshold = int(hue_uniformity_threshold)
         self.saturation_uniformity_threshold = int(saturation_uniformity_threshold)
         self.movement_threshold = (
-            int(movement_threshold) if movement_threshold is not None else 0.2
+            int(movement_threshold)
+            if movement_threshold is not None
+            else MOVEMENT_DEFAULT_THRESHOLD
         )
         self.previous_frame = None  # Store previous frame for movement detection
         os.makedirs(self.frames_dir, exist_ok=True)
