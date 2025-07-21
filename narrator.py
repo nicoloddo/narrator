@@ -104,6 +104,7 @@ def main(
     # When debugging the camera, the above command loops in infinite
 
     if debug_movement:
+        print("Started movement detection debugging")
         camera.capture_movement(reader, debugging=debug_movement)
 
     if not from_error:
@@ -270,6 +271,7 @@ async def async_main(
     camera.capture(reader, debugging=debug_camera)  # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
     if debug_movement:
+        print("Started movement detection debugging")
         camera.capture_movement(reader, debugging=debug_movement)
 
     if not from_error:
