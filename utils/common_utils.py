@@ -2,7 +2,7 @@ import subprocess
 import os
 import re
 
-from env_utils import get_first_image_prompt, get_new_image_prompt
+from utils.env_utils import get_first_image_prompt, get_new_image_prompt
 
 # Create the frames folder if it doesn't exist
 FRAMES_DIR = os.path.join(os.getcwd(), "frames")
@@ -25,33 +25,6 @@ def maybe_start_alternative_narrator(e, from_error, text, alternative_narrator):
 
 """ **************************************************************************************************** """
 """ LLM UTILS """
-
-
-def generate_new_line(mode, message, base64_image, first_prompt_bool):
-    if first_prompt_bool:
-        prompt = get_first_image_prompt(mode)
-    else:
-        prompt = get_new_image_prompt(mode)
-
-    if message and message.get("mode") == "ask_davide":
-        if message.get("content"):
-            prompt += f"\n\nThe person asks: {message['content']}. "
-
-    return [
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpg;base64,{base64_image}",
-                        "detail": "high",
-                    },
-                },
-            ],
-        },
-    ]
 
 
 def cut_to_n_words(text, n):

@@ -7,7 +7,7 @@ from pyht.async_client import AsyncClient
 from pyht.client import TTSOptions
 from pyht.protos import api_pb2
 import simpleaudio as sa
-from env_utils import get_env_var, get_playht_voice_id
+from utils.env_utils import get_env_var, get_playht_voice_id
 
 from .base_provider import AsyncTTSProvider
 

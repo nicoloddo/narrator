@@ -7,70 +7,22 @@ import asyncio
 
 from openai import OpenAI, AsyncOpenAI
 
-from env_utils import (
+from utils.env_utils import (
     get_env_var,
     get_agent_name,
-    get_agent_prompt,
-    get_first_image_prompt,
-    get_new_image_prompt,
 )
-from common_utils import (
+from utils.common_utils import (
     maybe_start_alternative_narrator,
     cut_to_n_words,
     count_tokens,
-    generate_new_line,
     FRAMES_DIR,
 )
 from tools import Camera
-import audio_feedback
-import db_parser as db
+from tools.ai import analyze_image, analyze_image_async
+import tools.audio_feedback as audio_feedback
+import tools.db_parser as db
 from tts_providers.provider_factory import ProviderFactory
-from tts_providers.base_provider import TTSProvider, AsyncTTSProvider
-
-MAX_TOKENS = int(get_env_var("MAX_TOKENS"))
-
-""" LLM HANDLING """
-
-
-def analyze_image(mode, message, base64_image, client, script):
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": get_agent_prompt(mode),
-            },
-        ]
-        + script
-        + generate_new_line(
-            mode, message, base64_image, len(script) == 0
-        ),  # If the script is empty this is the starting image
-        max_tokens=MAX_TOKENS,
-    )
-    response_text = response.choices[0].message.content
-    return response_text
-
-
-async def analyze_image_async(mode, message, base64_image, client, script):
-    response = await client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": get_agent_prompt(mode),
-            },
-        ]
-        + script
-        + generate_new_line(
-            mode, message, base64_image, len(script) == 0
-        ),  # If the script is empty this is the starting image
-        max_tokens=MAX_TOKENS,
-    )
-    response_text = response.choices[0].message.content
-    return response_text
-
-
-""" MAIN """
+from tts_providers.base_provider import AsyncTTSProvider
 
 
 def main(

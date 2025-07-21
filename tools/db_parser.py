@@ -10,7 +10,7 @@ import json
 import time
 from botocore.exceptions import ClientError
 
-from env_utils import get_env_var
+from utils.env_utils import get_env_var
 
 # Initialize the SQS client
 sqs = boto3.client(

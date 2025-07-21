@@ -5,7 +5,7 @@ from elevenlabs import generate, play, set_api_key, voices, RateLimitError
 from elevenlabs import Voice, VoiceSettings
 
 from .base_provider import TTSProvider
-from env_utils import (
+from utils.env_utils import (
     get_env_var,
     get_elevenlabs_voice_id,
     get_elevenlabs_stability,

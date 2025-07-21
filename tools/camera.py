@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 import imageio
 
-import audio_feedback
+import tools.audio_feedback as audio_feedback
 
 MOVEMENT_DEFAULT_THRESHOLD = 4
 
@@ -88,14 +88,15 @@ class Camera:
                 resized_img, count_frames, debugging
             )
 
-            if debugging and count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0:
+            if count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0:
                 if is_dark_or_uniform:
                     print("I can't see...")
                     audio_feedback.cant_see()
-                else:
+                    print()
+                elif debugging:
                     print("I can see clear!")
+                    print()
                     audio_feedback.i_see()
-                print()
 
             # Count frames for debugging prints
             count_frames += 1
@@ -223,7 +224,8 @@ class Camera:
         mean_diff = diff.mean()
 
         if debugging and (
-            count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0 or mean_diff > 0.2
+            count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0
+            or mean_diff > self.movement_threshold
         ):
             print(
                 f"Movement difference: {mean_diff:.2f} (threshold: {self.movement_threshold})"
