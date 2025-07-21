@@ -24,7 +24,7 @@ class Camera:
         movement_threshold=None,
     ):
         print(
-            f"Initializing camera with thresholds: {darkness_threshold}, {hue_uniformity_threshold}, {saturation_uniformity_threshold}, movement: {movement_threshold}"
+            f"Instantiating camera with thresholds: {darkness_threshold}, {hue_uniformity_threshold}, {saturation_uniformity_threshold}, movement: {movement_threshold}"
         )
         self.frames_dir = frames_dir
         self.darkness_threshold = int(darkness_threshold)
@@ -37,7 +37,7 @@ class Camera:
         )
         self.previous_frame = None  # Store previous frame for movement detection
         os.makedirs(self.frames_dir, exist_ok=True)
-        print(f"Camera initialized.")
+        print(f"Camera instantiated.")
 
     async def get_camera(self, camera="<video0>"):
         """Async version of camera initialization."""

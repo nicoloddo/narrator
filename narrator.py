@@ -195,6 +195,10 @@ class Narrator:
         """Process new record and update mode."""
         try:
             record = RecordModel(**record_data)
+            print(f"🔄 New record: {record}")
+            print(f"📋 Mode config: {MODE_CONFIGS[record.mode].description}")
+            print()
+            print(f"🔄 Old mode: {self.current_mode}")
 
             # Save record to file
             os.makedirs("requests", exist_ok=True)
