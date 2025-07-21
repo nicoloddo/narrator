@@ -41,7 +41,7 @@ class PlayHTProvider(AsyncTTSProvider):
 
         self.options = self._create_playht_options(mode)
         await self._async_play_audio(
-            self.client.tts(text, voice_engine="PlayHT2.0-turbo", options=self.options)
+            self.client.tts(text, voice_engine="Play3.0-mini", options=self.options)
         )
 
     async def cleanup_async(self) -> None:
@@ -60,7 +60,6 @@ class PlayHTProvider(AsyncTTSProvider):
             voice=env.get("PLAYHT_VOICE_ID", mode),
             sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
             format=api_pb2.FORMAT_WAV,
-            speed=0.9,
         )
 
     def _calculate_buffer_size(
