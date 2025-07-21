@@ -216,7 +216,9 @@ class Camera:
         # Calculate mean difference
         mean_diff = diff.mean()
 
-        if debugging and count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0:
+        if debugging and (
+            count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0 or mean_diff > 0.2
+        ):
             print(
                 f"Movement difference: {mean_diff:.2f} (threshold: {self.movement_threshold})"
             )
