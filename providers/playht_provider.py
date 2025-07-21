@@ -7,7 +7,7 @@ from pyht.async_client import AsyncClient
 from pyht.client import TTSOptions
 from pyht.protos import api_pb2
 import simpleaudio as sa
-from environment_selector import env
+from env_utils import get_env_var, get_playht_voice_id
 
 from .base_provider import AsyncTTSProvider
 
@@ -27,11 +27,11 @@ class PlayHTProvider(AsyncTTSProvider):
         """Initialize the PlayHT API client."""
         if not self._initialized:
             print("Initializing PlayHT client...")
-            print(env.get("PLAYHT_USER_ID")[:2])
-            print(env.get("PLAYHT_API_KEY")[:2])
-            self.client = AsyncClient(
-                user_id=env.get("PLAYHT_USER_ID"), api_key=env.get("PLAYHT_API_KEY")
-            )
+            user_id = get_env_var("PLAYHT_USER_ID")
+            api_key = get_env_var("PLAYHT_API_KEY")
+            print(user_id[:2])
+            print(api_key[:2])
+            self.client = AsyncClient(user_id=user_id, api_key=api_key)
             self._initialized = True
 
     async def play_audio_async(self, text: str, mode: str = "") -> None:
@@ -57,54 +57,34 @@ class PlayHTProvider(AsyncTTSProvider):
     def _create_playht_options(self, mode: str) -> TTSOptions:
         """Create PlayHT TTS options."""
         return TTSOptions(
-            voice=env.get("PLAYHT_VOICE_ID", mode),
+            voice=get_playht_voice_id(mode),
             sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
             format=api_pb2.FORMAT_WAV,
         )
 
-    def _calculate_buffer_size(
-        self, duration_minutes: int, sample_rate: int, data_type
-    ) -> int:
-        """Calculate buffer size for audio streaming."""
-        max_duration_seconds = duration_minutes * 60
-        bytes_per_sample = np.dtype(data_type).itemsize
-        return max_duration_seconds * sample_rate * bytes_per_sample
+    async def _async_play_audio(self, audio_stream):
+        """Play audio from async stream."""
+        # Collect audio data
+        audio_data = b""
+        async for chunk in audio_stream:
+            if chunk.data:
+                audio_data += chunk.data
 
-    async def _async_play_audio(self, data) -> None:
-        """Play audio stream asynchronously."""
-        max_minutes_per_audio = MAX_MINUTES_PER_AUDIO
-        audio_sample_dtype = np.float16
+        if not audio_data:
+            print("No audio data received")
+            return
 
-        buff_size = self._calculate_buffer_size(
-            max_minutes_per_audio, AUDIO_GENERATION_SAMPLE_RATE, audio_sample_dtype
-        )
-        ptr = 0
-        start_time = time.time()
-        buffer = np.empty(buff_size, audio_sample_dtype)
-        audio = None
-        i = -1
+        # Write to temporary file
+        temp_file = "temp_audio.wav"
+        with open(temp_file, "wb") as f:
+            f.write(audio_data)
 
-        async for chunk in data:
-            i += 1
-            if i == 0:
-                start_time = time.time()
-                continue  # Drop the first response, we don't want a header.
-            elif i == 1:
-                print("First audio byte received in:", time.time() - start_time)
-
-            for sample in np.frombuffer(chunk, audio_sample_dtype):
-                buffer[ptr] = sample
-                ptr += 1
-
-            if i == 5:
-                # Give a 4 sample worth of breathing room before starting playback
-                audio = sa.play_buffer(buffer, 1, 2, AUDIO_GENERATION_SAMPLE_RATE)
-
-        # Calculate approximate runtime and wait for audio to finish
-        approx_run_time = (
-            ptr / AUDIO_GENERATION_SAMPLE_RATE * (11 / 10)
-        )  # Add 1/10 buffer
-        await asyncio.sleep(max(approx_run_time + (start_time - time.time()), 0))
-
-        if audio is not None:
-            audio.stop()
+        try:
+            # Play the audio file
+            wave_obj = sa.WaveObject.from_wave_file(temp_file)
+            play_obj = wave_obj.play()
+            play_obj.wait_done()
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_file):
+                os.remove(temp_file)

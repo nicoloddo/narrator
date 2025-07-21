@@ -7,7 +7,13 @@ import asyncio
 
 from openai import OpenAI, AsyncOpenAI
 
-from environment_selector import env
+from env_utils import (
+    get_env_var,
+    get_agent_name,
+    get_agent_prompt,
+    get_first_image_prompt,
+    get_new_image_prompt,
+)
 from common_utils import (
     maybe_start_alternative_narrator,
     cut_to_n_words,
@@ -21,7 +27,7 @@ import db_parser as db
 from providers.provider_factory import ProviderFactory
 from providers.base_provider import TTSProvider, AsyncTTSProvider
 
-MAX_TOKENS = int(env.get("MAX_TOKENS"))
+MAX_TOKENS = int(get_env_var("MAX_TOKENS"))
 
 """ LLM HANDLING """
 
@@ -32,7 +38,7 @@ def analyze_image(mode, message, base64_image, client, script):
         messages=[
             {
                 "role": "system",
-                "content": env.get("AGENT_PROMPT", mode),
+                "content": get_agent_prompt(mode),
             },
         ]
         + script
@@ -51,7 +57,7 @@ async def analyze_image_async(mode, message, base64_image, client, script):
         messages=[
             {
                 "role": "system",
-                "content": env.get("AGENT_PROMPT", mode),
+                "content": get_agent_prompt(mode),
             },
         ]
         + script
@@ -62,35 +68,6 @@ async def analyze_image_async(mode, message, base64_image, client, script):
     )
     response_text = response.choices[0].message.content
     return response_text
-
-
-def generate_new_line(mode, message, base64_image, first_prompt_bool):
-    if first_prompt_bool:
-        prompt = env.get("FIRST_IMAGE_PROMPT", mode)
-    else:
-        prompt = env.get("NEW_IMAGE_PROMPT", mode)
-
-    if message["mode"] == "ask_davide":
-        if message["content"]:
-            prompt += f"\n\nThe person asks: {message['content']}. "
-
-    # Here you can put additions to the prompt based on the content if you want
-
-    return [
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpg;base64,{base64_image}",
-                        "detail": "high",
-                    },
-                },
-            ],
-        },
-    ]
 
 
 """ MAIN """
@@ -131,7 +108,7 @@ def main(
     # OpenAI client initialization
     client = OpenAI()
 
-    max_times = int(env.get("MAX_TIMES"))
+    max_times = int(get_env_var("MAX_TIMES"))
     count = 0
 
     # TTS error handling
@@ -164,7 +141,7 @@ def main(
             content = record["content"]
             mode = record["mode"]
 
-            agent_name = env.get("AGENT_NAME", mode)
+            agent_name = get_agent_name(mode)
             message = {
                 "content": content,
                 "mode": mode,
@@ -288,7 +265,7 @@ async def async_main(
     # OpenAI client initialization
     client = AsyncOpenAI()
 
-    max_times = int(env.get("MAX_TIMES"))
+    max_times = int(get_env_var("MAX_TIMES"))
     count = 0
 
     # TTS error handling
@@ -325,7 +302,7 @@ async def async_main(
             content = record["content"]
             mode = record["mode"]
 
-            agent_name = env.get("AGENT_NAME", mode)
+            agent_name = get_agent_name(mode)
             message = {
                 "content": content,
                 "mode": mode,

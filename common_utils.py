@@ -2,7 +2,7 @@ import subprocess
 import os
 import re
 
-from environment_selector import env
+from env_utils import get_first_image_prompt, get_new_image_prompt
 
 # Create the frames folder if it doesn't exist
 FRAMES_DIR = os.path.join(os.getcwd(), "frames")
@@ -29,9 +29,9 @@ def maybe_start_alternative_narrator(e, from_error, text, alternative_narrator):
 
 def generate_new_line(mode, message, base64_image, first_prompt_bool):
     if first_prompt_bool:
-        prompt = env.get("FIRST_IMAGE_PROMPT", mode)
+        prompt = get_first_image_prompt(mode)
     else:
-        prompt = env.get("NEW_IMAGE_PROMPT", mode)
+        prompt = get_new_image_prompt(mode)
 
     if message and message.get("mode") == "ask_davide":
         if message.get("content"):
