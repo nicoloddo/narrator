@@ -25,6 +25,18 @@ def make_arguments(parser_description):
     )
 
     parser.add_argument(
+        "--debug-movement",
+        action="store_true",
+        help="If you want to debug movement detection specifically.",
+    )
+
+    parser.add_argument(
+        "--capture-movement",
+        action="store_true",
+        help="Use movement detection instead of regular capture.",
+    )
+
+    parser.add_argument(
         "--debug-chat", action="store_true", help="If you want to debug the chat model."
     )
 

@@ -77,6 +77,8 @@ def main(
     from_error=False,
     text=None,
     debug_camera=False,
+    debug_movement=False,
+    capture_movement=False,
     debug_chat=False,
     manual_triggering=False,
     provider_name=None,
@@ -98,10 +100,12 @@ def main(
 
     # Start camera.
     reader = camera.get_camera("<video0>")
-    # time.sleep(2) # Wait for the camera to initialize and adjust light levels
-
     camera.capture(reader, debugging=debug_camera)  # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
+
+    if debug_movement:
+        camera.capture_movement(reader, debugging=debug_movement)
+
     if not from_error:
         print("👋 Hi!")
         audio_feedback.startup()
@@ -164,7 +168,10 @@ def main(
         else:
             # analyze posture
             print(f"👀 {agent_name} is looking...")
-            base64_image = camera.capture(reader)
+            if capture_movement:
+                base64_image = camera.capture_movement(reader)
+            else:
+                base64_image = camera.capture(reader)
 
             print(f"🧠 {agent_name} is thinking...")
             text = analyze_image(mode, message, base64_image, client, script=script)
@@ -234,6 +241,8 @@ async def async_main(
     from_error=False,
     text=None,
     debug_camera=False,
+    debug_movement=False,
+    capture_movement=False,
     debug_chat=False,
     manual_triggering=False,
     provider_name=None,
@@ -260,6 +269,9 @@ async def async_main(
 
     camera.capture(reader, debugging=debug_camera)  # loop until camera shows something
     # When debugging the camera, the above command loops in infinite
+    if debug_movement:
+        camera.capture_movement(reader, debugging=debug_movement)
+
     if not from_error:
         print("👋 Hi!")
         audio_feedback.startup()
@@ -326,7 +338,10 @@ async def async_main(
         else:
             # analyze posture
             print(f"👀 {agent_name} is looking...")
-            base64_image = camera.capture(reader)
+            if capture_movement:
+                base64_image = camera.capture_movement(reader)
+            else:
+                base64_image = camera.capture(reader)
 
             print(f"🧠 {agent_name} is thinking...")
             text = await analyze_image_async(
