@@ -35,6 +35,7 @@ class Narrator:
         debug_movement=False,
         debug_chat=False,
         provider_name=None,
+        continue_on_error=True,
     ):
         print(f"☕ Waking up the narrator...")
 
@@ -45,6 +46,7 @@ class Narrator:
         self.debug_movement = debug_movement
         self.debug_chat = debug_chat
         self.provider_name = provider_name
+        self.continue_on_error = continue_on_error
         self.max_times = float(get_env_var("MAX_TIMES") or "inf")
         self.count = 0
 
@@ -99,6 +101,82 @@ class Narrator:
             print(f"Failed to initialize TTS provider: {e}")
             self.tts_error_occurred = True
             self.tts_error = e
+
+    async def _handle_tts_error_recovery(self):
+        """Handle TTS error recovery when continue_on_error is True."""
+        print("🔧 Attempting TTS error recovery...")
+
+        # Try to reinitialize current provider
+        try:
+            print(f"🔄 Attempting to reinitialize current TTS provider...")
+            if self.tts_provider:
+                if isinstance(self.tts_provider, AsyncTTSProvider):
+                    await self.tts_provider.cleanup_async()
+                else:
+                    self.tts_provider.cleanup()
+
+            # Reset error state
+            self.tts_error_occurred = False
+            self.tts_error = None
+            self.tts_provider = None
+
+            # Try to reinitialize
+            await self._initialize_tts_provider()
+
+            if not self.tts_error_occurred:
+                print("✅ TTS provider successfully reinitialized")
+                return
+
+        except Exception as e:
+            print(f"❌ Failed to reinitialize current provider: {e}")
+
+        # Try alternative provider if current one failed
+        try:
+            if self.tts_provider and hasattr(self.tts_provider, "provider_name"):
+                current_provider = self.tts_provider.provider_name
+            else:
+                current_provider = self.provider_name or "elevenlabs"
+
+            alternative_provider = (
+                "playht" if current_provider.lower() == "elevenlabs" else "elevenlabs"
+            )
+
+            print(
+                f"🔄 Attempting to switch to alternative TTS provider: {alternative_provider}"
+            )
+
+            # Reset error state and try alternative
+            self.tts_error_occurred = False
+            self.tts_error = None
+            self.tts_provider = None
+            self.provider_name = alternative_provider
+
+            await self._initialize_tts_provider()
+
+            if not self.tts_error_occurred:
+                print(
+                    f"✅ Successfully switched to alternative TTS provider: {alternative_provider}"
+                )
+                return
+
+        except Exception as e:
+            print(f"❌ Failed to initialize alternative provider: {e}")
+
+        # If all recovery attempts fail, continue without TTS
+        print("All TTS recovery attempts failed.")
+        print(
+            "🔇 To continue without audio output, the env variable ALLOW_NO_TTS must set to True."
+        )
+        if os.environ.get("ALLOW_NO_TTS") == "True":
+            print("🔇 ALLOW_NO_TTS is set to True, continuing without audio output.")
+        else:
+            print("🔇 ALLOW_NO_TTS is not set to True, shutting down.")
+            self.shutdown_event.set()
+            return
+
+        self.tts_provider = None
+        # Reset error state so the narrator doesn't keep trying
+        self.tts_error_occurred = False
 
     def _get_camera_capture_method(self, camera_method: CameraMethod):
         """Get the appropriate camera capture method based on mode configuration."""
@@ -316,7 +394,12 @@ class Narrator:
             print(f"Error during response generation: {e}")
             self.tts_error_occurred = True
             self.tts_error = e
-            self.shutdown_event.set()
+            if not self.continue_on_error:
+                self.shutdown_event.set()
+            else:
+                print(f"🔄 Continuing despite TTS error (continue_on_error=True)")
+                # Try to reinitialize TTS provider or continue without TTS
+                await self._handle_tts_error_recovery()
 
     async def run(self):
         """Main async run loop with concurrent record processing and camera capture."""
@@ -344,9 +427,14 @@ class Narrator:
             # Initialize TTS provider
             await self._initialize_tts_provider()
 
-            if self.tts_error_occurred:
+            if self.tts_error_occurred and not self.continue_on_error:
                 print("Cannot continue due to TTS provider initialization failure")
                 return
+            elif self.tts_error_occurred and self.continue_on_error:
+                print(
+                    "🔄 TTS provider failed to initialize, but continuing anyway (continue_on_error=True)"
+                )
+                print("📢 Narrator will run without TTS audio output")
 
             print(f"🎬 Starting narrator with mode: {self.current_mode.value}")
             print(f"📖 {MODE_CONFIGS[self.current_mode].description}")
@@ -418,6 +506,13 @@ class Narrator:
         """Handle TTS errors by trying alternative provider."""
         if self.tts_error_occurred:
             print(f"💥 TTS error occurred: {self.tts_error}")
+
+            # If continue_on_error is True, don't start alternative narrator
+            if self.continue_on_error:
+                print(
+                    "🔄 TTS error handled with continue_on_error=True, not starting alternative narrator"
+                )
+                return
 
             if self.last_text is None:
                 print("💥 No last text to use for error recovery")

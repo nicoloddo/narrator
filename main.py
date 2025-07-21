@@ -44,11 +44,30 @@ def make_arguments(parser_description):
         help="TTS provider to use (elevenlabs, playht). If not specified, uses TTS_PROVIDER env var or defaults to elevenlabs.",
     )
 
+    parser.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        default=True,
+        help="Continue running when TTS errors occur instead of shutting down (default: True).",
+    )
+
+    parser.add_argument(
+        "--no-continue-on-error",
+        action="store_true",
+        help="Disable continue-on-error behavior and shutdown on TTS errors.",
+    )
+
     args = parser.parse_args()
 
     # Conditional requirement check
     if args.from_error and not args.text:
         parser.error("--text is required when --from-error is specified.")
+
+    # Handle continue_on_error logic
+    if args.no_continue_on_error:
+        args.continue_on_error = False
+    # Convert hyphenated argument to underscore for Python
+    args.continue_on_error = getattr(args, "continue_on_error", True)
 
     return args
 
@@ -62,9 +81,7 @@ async def main_async(**kwargs):
     except Exception as e:
         print(f"Error running narrator: {e}")
         if narrator.tts_error_occurred:
-            # Get the last response text if available
-            last_text = kwargs.get("text", "Error occurred")
-            await narrator.handle_tts_error(last_text)
+            await narrator.handle_tts_error()
 
     sys.exit(0)
 
