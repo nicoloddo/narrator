@@ -29,6 +29,7 @@ class NarratorMode(str, Enum):
     ASK_BORTIS = "ask_bortis"
     GENERAL_NARRATION = "general_narration"
     DEBUG = "debug"
+    DEBUG_MOVEMENT = "debug_movement"
     OBSERVATION = "observation"
     SECURITY_MONITOR = "security_monitor"
 
