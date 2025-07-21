@@ -62,6 +62,7 @@ class Narrator:
         self.tts_error_occurred = False
         self.tts_error = None
         self.current_record = None
+        self.last_text = None
 
         # Initialize camera
         self.camera = Camera(
@@ -282,6 +283,7 @@ class Narrator:
             print(f"🎙️ {agent_name} says:")
             print(f"💬 {text}")
             print(f"📏 Length: {len(text)} | Tokens: {count_tokens(text)}")
+            self.last_text = text
 
             # Cut to appropriate length
             max_tokens = int(get_env_var("MAX_TOKENS"))
@@ -407,15 +409,25 @@ class Narrator:
                 await loop.run_in_executor(None, self.reader.close)
 
             if self.tts_error_occurred:
-                await self.handle_tts_error(self.tts_error)
+                await self.handle_tts_error()
 
         except Exception as e:
             print(f"Warning: Error during cleanup: {e}")
 
-    async def handle_tts_error(self, last_text: str):
+    async def handle_tts_error(self):
         """Handle TTS errors by trying alternative provider."""
         if self.tts_error_occurred:
             print(f"💥 TTS error occurred: {self.tts_error}")
+
+            if self.last_text is None:
+                print("💥 No last text to use for error recovery")
+                return
+
+            if self.from_error:
+                print(
+                    "💥 Error recovery is not supported for narrators already started from an error"
+                )
+                return
 
             # Try alternative provider
             alternative_provider = (
@@ -433,7 +445,7 @@ class Narrator:
                 "narrator.py",
                 "--from-error",
                 "--text",
-                last_text,
+                self.last_text,
                 "--provider-name",
                 alternative_provider,
             ]
