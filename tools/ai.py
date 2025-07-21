@@ -1,10 +1,14 @@
-from utils.env_utils import get_agent_prompt
-from utils.env_utils import get_env_var, get_first_image_prompt, get_new_image_prompt
+from utils.env_utils import (
+    get_agent_prompt,
+    get_env_var,
+    get_first_image_prompt,
+    get_new_image_prompt,
+)
 
 MAX_TOKENS = int(get_env_var("MAX_TOKENS"))
 
 
-def analyze_image(mode, message, base64_image, client, script):
+def analyze_image(client, mode, message, base64_image, script):
     """Analyze image using OpenAI GPT-4o model synchronously."""
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -24,7 +28,7 @@ def analyze_image(mode, message, base64_image, client, script):
     return response_text
 
 
-async def analyze_image_async(mode, message, base64_image, client, script):
+async def analyze_image_async(client, mode, message, base64_image, script):
     """Analyze image using OpenAI GPT-4o model asynchronously."""
     response = await client.chat.completions.create(
         model="gpt-4o",

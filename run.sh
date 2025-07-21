@@ -38,14 +38,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Build the command
-CMD="python narrator.py"
+CMD="python main.py"
 
 # Add provider if specified
 if [[ -n "$PROVIDER" ]]; then
     CMD="$CMD --provider-name $PROVIDER"
-    echo "Running narrator.py with $PROVIDER provider"
+    echo "Running main.py with $PROVIDER provider"
 else
-    echo "Running narrator.py with default provider"
+    echo "Running main.py with default provider"
 fi
 
 # Add any remaining arguments

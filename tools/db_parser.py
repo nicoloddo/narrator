@@ -7,7 +7,7 @@ Created on Thu Aug 22 16:46:34 2024
 
 import boto3
 import json
-import time
+import asyncio
 from botocore.exceptions import ClientError
 
 from utils.env_utils import get_env_var
@@ -38,7 +38,7 @@ def process_message(message):
     return body
 
 
-def fetch_record(verbose=False):
+async def fetch_record(verbose=False):
     print("Waiting for a message.")
     while True:
         try:
@@ -82,8 +82,8 @@ def fetch_record(verbose=False):
                     pass
 
             # Wait for 1 second before the next request
-            time.sleep(1)
+            await asyncio.sleep(1)
 
         except ClientError as e:
             print(f"An error occurred: {e}")
-            time.sleep(5)  # Wait a bit longer on errors
+            await asyncio.sleep(5)  # Wait a bit longer on errors

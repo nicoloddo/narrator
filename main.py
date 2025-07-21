@@ -1,4 +1,7 @@
 import argparse
+import asyncio
+import sys
+from narrator import Narrator
 
 
 def make_arguments(parser_description):
@@ -31,19 +34,7 @@ def make_arguments(parser_description):
     )
 
     parser.add_argument(
-        "--capture-movement",
-        action="store_true",
-        help="Use movement detection instead of regular capture.",
-    )
-
-    parser.add_argument(
         "--debug-chat", action="store_true", help="If you want to debug the chat model."
-    )
-
-    parser.add_argument(
-        "--manual-triggering",
-        action="store_true",
-        help="If you want to trigger manually the agent using a AWS queue system.",
     )
 
     parser.add_argument(
@@ -60,3 +51,25 @@ def make_arguments(parser_description):
         parser.error("--text is required when --from-error is specified.")
 
     return args
+
+
+async def main_async(**kwargs):
+    """Async main function using the new Narrator class."""
+    narrator = Narrator(**kwargs)
+
+    try:
+        await narrator.run()
+    except Exception as e:
+        print(f"Error running narrator: {e}")
+        if narrator.tts_error_occurred:
+            # Get the last response text if available
+            last_text = kwargs.get("text", "Error occurred")
+            await narrator.handle_tts_error(last_text)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    args = make_arguments(parser_description="Narrator")
+
+    asyncio.run(main_async(**vars(args)))

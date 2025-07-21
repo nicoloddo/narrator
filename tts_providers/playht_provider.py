@@ -29,8 +29,6 @@ class PlayHTProvider(AsyncTTSProvider):
             print("Initializing PlayHT client...")
             user_id = get_env_var("PLAYHT_USER_ID")
             api_key = get_env_var("PLAYHT_API_KEY")
-            print(user_id[:2])
-            print(api_key[:2])
             self.client = AsyncClient(user_id=user_id, api_key=api_key)
             self._initialized = True
 
