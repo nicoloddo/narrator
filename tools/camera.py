@@ -20,11 +20,15 @@ class Camera:
         hue_uniformity_threshold,
         saturation_uniformity_threshold,
     ):
+        print(
+            f"Initializing camera with thresholds: {darkness_threshold}, {hue_uniformity_threshold}, {saturation_uniformity_threshold}"
+        )
         self.frames_dir = frames_dir
         self.darkness_threshold = int(darkness_threshold)
         self.hue_uniformity_threshold = int(hue_uniformity_threshold)
         self.saturation_uniformity_threshold = int(saturation_uniformity_threshold)
         os.makedirs(self.frames_dir, exist_ok=True)
+        print(f"Camera initialized.")
 
     def get_camera(self, camera="<video0>"):
         while True:
