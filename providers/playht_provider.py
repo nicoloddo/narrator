@@ -18,8 +18,7 @@ MAX_MINUTES_PER_AUDIO = 4
 class PlayHTProvider(AsyncTTSProvider):
     """PlayHT TTS provider implementation."""
 
-    def __init__(self, mode: str = ""):
-        super().__init__(mode)
+    def __init__(self):
         self.client = None
         self.options = None
         self._initialized = False
@@ -35,12 +34,12 @@ class PlayHTProvider(AsyncTTSProvider):
             )
             self._initialized = True
 
-    async def play_audio_async(self, text: str) -> None:
+    async def play_audio_async(self, text: str, mode: str = "") -> None:
         """Generate and play audio using PlayHT TTS."""
         if not self._initialized:
             await self.initialize_async()
 
-        self.options = self._create_playht_options()
+        self.options = self._create_playht_options(mode)
         await self._async_play_audio(
             self.client.tts(text, voice_engine="PlayHT2.0-turbo", options=self.options)
         )
@@ -55,10 +54,10 @@ class PlayHTProvider(AsyncTTSProvider):
         """Return the name of this provider."""
         return "PlayHT"
 
-    def _create_playht_options(self) -> TTSOptions:
+    def _create_playht_options(self, mode: str) -> TTSOptions:
         """Create PlayHT TTS options."""
         return TTSOptions(
-            voice=env.get("PLAYHT_VOICE_ID"),
+            voice=env.get("PLAYHT_VOICE_ID", mode),
             sample_rate=AUDIO_GENERATION_SAMPLE_RATE,
             format=api_pb2.FORMAT_WAV,
             speed=0.9,

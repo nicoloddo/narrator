@@ -188,7 +188,7 @@ def main(
             print(count_tokens(text))
             text = cut_to_n_words(text, int(MAX_TOKENS * 5 / 4))
             if not debug_chat and tts_provider:
-                tts_provider.play_audio(text)
+                tts_provider.play_audio(text, mode)
 
         except Exception as e:
             tts_error_occurred = True
@@ -342,9 +342,9 @@ async def async_main(
             text = cut_to_n_words(text, int(MAX_TOKENS * 5 / 4))
             if not debug_chat and tts_provider:
                 if isinstance(tts_provider, AsyncTTSProvider):
-                    await tts_provider.play_audio_async(text)
+                    await tts_provider.play_audio_async(text, mode)
                 else:
-                    tts_provider.play_audio(text)
+                    tts_provider.play_audio(text, mode)
 
         except Exception as e:
             tts_error_occurred = True

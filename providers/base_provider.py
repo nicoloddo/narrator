@@ -5,12 +5,8 @@ from typing import Optional
 class TTSProvider(ABC):
     """Abstract base class for TTS providers."""
 
-    def __init__(self, mode: str = ""):
-        """Initialize the provider with the given mode."""
-        self.mode = mode
-
     @abstractmethod
-    def play_audio(self, text: str) -> None:
+    def play_audio(self, text: str, mode: str = "") -> None:
         """
         Generate and play audio from the given text.
 
@@ -42,12 +38,8 @@ class TTSProvider(ABC):
 class AsyncTTSProvider(ABC):
     """Abstract base class for async TTS providers."""
 
-    def __init__(self, mode: str = ""):
-        """Initialize the provider with the given mode."""
-        self.mode = mode
-
     @abstractmethod
-    async def play_audio_async(self, text: str) -> None:
+    async def play_audio_async(self, text: str, mode: str = "") -> None:
         """
         Generate and play audio from the given text asynchronously.
 

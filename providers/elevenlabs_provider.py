@@ -11,8 +11,7 @@ from environment_selector import env
 class ElevenLabsProvider(TTSProvider):
     """ElevenLabs TTS provider implementation."""
 
-    def __init__(self, mode: str = ""):
-        super().__init__(mode)
+    def __init__(self):
         self._initialized = False
 
     def initialize(self) -> None:
@@ -21,7 +20,7 @@ class ElevenLabsProvider(TTSProvider):
             set_api_key(env.get("ELEVENLABS_API_KEY"))
             self._initialized = True
 
-    def play_audio(self, text: str) -> None:
+    def play_audio(self, text: str, mode: str = "") -> None:
         """Generate and play audio using ElevenLabs TTS."""
         if not self._initialized:
             self.initialize()
@@ -29,11 +28,11 @@ class ElevenLabsProvider(TTSProvider):
         audio = generate(
             text,
             voice=Voice(
-                voice_id=env.get("ELEVENLABS_VOICE_ID", self.mode),
+                voice_id=env.get("ELEVENLABS_VOICE_ID", mode),
                 settings=VoiceSettings(
-                    stability=float(env.get("ELEVENLABS_STABILITY", self.mode)),
-                    similarity_boost=float(env.get("ELEVENLABS_SIMILARITY", self.mode)),
-                    style=float(env.get("ELEVENLABS_STYLE", self.mode)),
+                    stability=float(env.get("ELEVENLABS_STABILITY", mode)),
+                    similarity_boost=float(env.get("ELEVENLABS_SIMILARITY", mode)),
+                    style=float(env.get("ELEVENLABS_STYLE", mode)),
                     use_speaker_boost=True,
                 ),
             ),
