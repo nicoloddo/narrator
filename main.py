@@ -51,12 +51,6 @@ def make_arguments(parser_description):
         help="Continue running when TTS errors occur instead of shutting down (default: True).",
     )
 
-    parser.add_argument(
-        "--no-continue-on-error",
-        action="store_true",
-        help="Disable continue-on-error behavior and shutdown on TTS errors.",
-    )
-
     args = parser.parse_args()
 
     # Conditional requirement check
