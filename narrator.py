@@ -85,12 +85,6 @@ class Narrator:
         # Initialize TTS provider
         self.tts_provider = None
 
-        # Startup greeting
-        if not from_error:
-            print("👋 Hi!")
-            audio_feedback.startup()
-            self.current_mode = NarratorMode.WAIT_FOR_INSTRUCTIONS
-
     async def _initialize_tts_provider(self):
         """Initialize TTS provider with error handling."""
         try:
@@ -329,6 +323,12 @@ class Narrator:
                 await self.camera.capture_movement(
                     self.reader, debugging=self.debug_movement
                 )
+
+            # Startup greeting
+            if not self.from_error:
+                print("👋 Hi!")
+                audio_feedback.startup()
+                self.current_mode = NarratorMode.WAIT_FOR_INSTRUCTIONS
 
             # Initialize TTS provider
             await self._initialize_tts_provider()
