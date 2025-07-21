@@ -214,7 +214,6 @@ class Narrator:
             old_mode = self.current_mode
             self.current_mode = record.mode
 
-            agent_name = get_agent_name(record.mode.value)
             print()
             print(f"🔄 Mode changed from {old_mode.value} to {record.mode.value}")
             print(f"📝 New {record.mode.value} request: {record.content}")

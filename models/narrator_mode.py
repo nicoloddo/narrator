@@ -40,7 +40,6 @@ class ModeConfig(BaseModel):
     camera_method: CameraMethod = CameraMethod.STANDARD
     capture_mode: CaptureMode = CaptureMode.CONTINUOUS
     sleep_interval: float = 3.0  # seconds between captures in continuous mode
-    requires_record: bool = True  # whether this mode needs records to function
     description: str = ""
 
     class Config:
@@ -54,7 +53,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.CONTINUOUS,
         sleep_interval=1.0,
-        requires_record=False,
         description="Initial startup mode, brief waiting period",
     ),
     NarratorMode.WAIT_FOR_INSTRUCTIONS: ModeConfig(
@@ -62,7 +60,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.RECORD_TRIGGERED,
         sleep_interval=0.5,
-        requires_record=True,
         description="Waiting for user instructions, only capture on new records",
     ),
     NarratorMode.ASK_DAVIDE: ModeConfig(
@@ -70,7 +67,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.RECORD_TRIGGERED,
         sleep_interval=1.0,
-        requires_record=True,
         description="Davide interaction mode, capture triggered by questions",
     ),
     NarratorMode.ASK_BORTIS: ModeConfig(
@@ -78,7 +74,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.RECORD_TRIGGERED,
         sleep_interval=1.0,
-        requires_record=True,
         description="Bortis interaction mode, capture triggered by questions",
     ),
     NarratorMode.GENERAL_NARRATION: ModeConfig(
@@ -86,7 +81,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.CONTINUOUS,
         sleep_interval=5.0,
-        requires_record=False,
         description="Continuous general narration of surroundings",
     ),
     NarratorMode.DEBUG: ModeConfig(
@@ -94,7 +88,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.DEBUG,
         capture_mode=CaptureMode.HYBRID,
         sleep_interval=2.0,
-        requires_record=False,
         description="Debug mode with enhanced capture and logging",
     ),
     NarratorMode.DEBUG_MOVEMENT: ModeConfig(
@@ -102,7 +95,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.DEBUG_MOVEMENT,
         capture_mode=CaptureMode.HYBRID,
         sleep_interval=2.0,
-        requires_record=False,
         description="Debug mode with movement detection",
     ),
     NarratorMode.OBSERVATION: ModeConfig(
@@ -110,7 +102,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.STANDARD,
         capture_mode=CaptureMode.CONTINUOUS,
         sleep_interval=10.0,
-        requires_record=False,
         description="Long-interval observation mode",
     ),
     NarratorMode.SECURITY_MONITOR: ModeConfig(
@@ -118,7 +109,6 @@ MODE_CONFIGS = {
         camera_method=CameraMethod.MOVEMENT_DETECTION,
         capture_mode=CaptureMode.CONTINUOUS,
         sleep_interval=1.0,
-        requires_record=False,
         description="Security monitoring with movement detection",
     ),
 }
