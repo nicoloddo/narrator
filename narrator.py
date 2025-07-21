@@ -73,13 +73,10 @@ class Narrator:
             ),
             movement_threshold=os.environ.get("MOVEMENT_THRESHOLD"),
         )
-        self.reader = self.camera.get_camera("<video0>")
-        # Initial camera setup, it loops until it sees something
-        self.camera.capture(self.reader, debugging=debug_camera)
+        # Note: camera setup will be done async in run() method
+        self.reader = None
 
-        if debug_movement:
-            print("Started movement detection debugging")
-            self.camera.capture_movement(self.reader, debugging=debug_movement)
+        # Movement debugging will be handled in async initialization
 
         # Initialize OpenAI clients
         self.sync_client = OpenAI()
@@ -246,7 +243,7 @@ class Narrator:
             # Capture image
             print(f"👀 {agent_name} is looking... (Mode: {self.current_mode.value})")
             capture_method = self._get_camera_capture_method(mode_config.camera_method)
-            base64_image = capture_method()
+            base64_image = await capture_method()
 
             # Create message object for AI analysis
             message = {
@@ -319,6 +316,20 @@ class Narrator:
     async def run(self):
         """Main async run loop with concurrent record processing and camera capture."""
         try:
+            # Initialize camera async
+            print("📷 Initializing camera...")
+            self.reader = await self.camera.get_camera("<video0>")
+
+            # Initial camera setup - wait until camera sees something
+            print("👁️ Camera waiting for clear view...")
+            await self.camera.capture(self.reader, debugging=self.debug_camera)
+
+            if self.debug_movement:
+                print("🔍 Testing movement detection...")
+                await self.camera.capture_movement(
+                    self.reader, debugging=self.debug_movement
+                )
+
             # Initialize TTS provider
             await self._initialize_tts_provider()
 

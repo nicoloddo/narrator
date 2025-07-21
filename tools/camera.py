@@ -1,5 +1,5 @@
 import os
-import time
+import asyncio
 import base64
 import errno
 import io
@@ -39,53 +39,48 @@ class Camera:
         os.makedirs(self.frames_dir, exist_ok=True)
         print(f"Camera initialized.")
 
-    def get_camera(self, camera="<video0>"):
+    async def get_camera(self, camera="<video0>"):
+        """Async version of camera initialization."""
         while True:
             try:
                 reader = imageio.get_reader(camera)
                 return reader
             except IOError:
-                # Wait a bit and retry
-                time.sleep(0.1)
+                # Wait a bit and retry (non-blocking)
+                await asyncio.sleep(0.1)
 
-    def encode_image(self, image_path):
+    async def encode_image(self, image_path):
+        """Async version of image encoding."""
         while True:
             try:
+                # Run file I/O in executor to avoid blocking
+                loop = asyncio.get_running_loop()
                 with open(image_path, "rb") as image_file:
-                    return base64.b64encode(image_file.read()).decode("utf-8")
+                    image_data = await loop.run_in_executor(None, image_file.read)
+                    return base64.b64encode(image_data).decode("utf-8")
             except IOError as e:
                 if e.errno != errno.EACCES:
                     # Not a "file in use" error, re-raise
                     raise
-                # File is being written to, wait a bit and retry
-                time.sleep(0.1)
+                # File is being written to, wait a bit and retry (non-blocking)
+                await asyncio.sleep(0.1)
 
-    def capture(self, reader, *, debugging=False):
+    async def capture(self, reader, *, debugging=False):
+        """Async version of frame capture."""
         if debugging:
             print("Started camera debugging")
 
         is_dark_or_uniform = True
-
         count_frames = 0
+
         while is_dark_or_uniform or debugging:
-            frame = reader.get_next_data()
+            # Get frame in executor to avoid blocking if needed
+            loop = asyncio.get_running_loop()
+            frame = await loop.run_in_executor(None, reader.get_next_data)
 
-            # Convert the frame to a PIL image
-            pil_img = Image.fromarray(frame)
-
-            # Resize the image
-            max_size = 500
-            ratio = max_size / max(pil_img.size)
-            new_size = tuple([int(x * ratio) for x in pil_img.size])
-            resized_img = pil_img.resize(new_size, Image.LANCZOS)
-
-            # Convert PIL image to a bytes buffer and encode in base64
-            buffered = io.BytesIO()
-            resized_img.save(buffered, format="JPEG")
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-
-            is_dark_or_uniform = self._check_image_quality(
-                resized_img, count_frames, debugging
+            # Process frame (CPU-bound, run in executor)
+            img_str, is_dark_or_uniform = await loop.run_in_executor(
+                None, self._process_frame, frame, count_frames, debugging
             )
 
             if count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0:
@@ -103,14 +98,12 @@ class Camera:
             if count_frames == self.PRINT_DEBUG_EACH_N_FRAMES + 1:
                 count_frames = 0
 
-        # We are out of the loop, so the image is ok:
-        # Save the frame as an image file for debugging purposes
-        path = os.path.join(self.frames_dir, "frame.jpg")
-        resized_img.save(path)
+        # We are out of the loop, so the image is ok
         return img_str
 
-    def capture_movement(self, reader, *, debugging=False):
+    async def capture_movement(self, reader, *, debugging=False):
         """
+        Async version of movement detection capture.
         Capture frames from the camera until movement is detected.
         Returns the base64 encoded image when movement is found.
         """
@@ -121,25 +114,13 @@ class Camera:
         count_frames = 0
 
         while not movement_detected or debugging:
-            frame = reader.get_next_data()
+            # Get frame in executor to avoid blocking if needed
+            loop = asyncio.get_running_loop()
+            frame = await loop.run_in_executor(None, reader.get_next_data)
 
-            # Convert the frame to a PIL image
-            pil_img = Image.fromarray(frame)
-
-            # Resize the image (same as capture method)
-            max_size = 500
-            ratio = max_size / max(pil_img.size)
-            new_size = tuple([int(x * ratio) for x in pil_img.size])
-            resized_img = pil_img.resize(new_size, Image.LANCZOS)
-
-            # Convert PIL image to a bytes buffer and encode in base64
-            buffered = io.BytesIO()
-            resized_img.save(buffered, format="JPEG")
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-
-            # Check for movement
-            movement_detected = self._detect_movement(
-                resized_img, count_frames, debugging
+            # Process frame and detect movement (CPU-bound, run in executor)
+            img_str, movement_detected = await loop.run_in_executor(
+                None, self._process_movement_frame, frame, count_frames, debugging
             )
 
             if debugging and (
@@ -153,25 +134,84 @@ class Camera:
                     audio_feedback.cant_see()
                 print()
 
-            # Store current frame as previous for next iteration
-            self.previous_frame = resized_img.copy()
-
             # Count frames for debugging prints
             count_frames += 1
             if count_frames == self.PRINT_DEBUG_EACH_N_FRAMES + 1:
                 count_frames = 0
 
-            # Small delay to avoid overwhelming the system
+            # Small delay to avoid overwhelming the system (non-blocking)
             if not movement_detected:
-                time.sleep(1)
+                await asyncio.sleep(1)
 
         # Movement detected! Save the frame and return
-        path = os.path.join(self.frames_dir, "movement_frame.jpg")
-        resized_img.save(path)
         print("✨ Movement captured!")
         return img_str
 
+    def _process_frame(self, frame, count_frames, debugging):
+        """
+        Process a single frame (synchronous, meant to run in executor).
+        Returns tuple of (img_str, is_dark_or_uniform).
+        """
+        # Convert the frame to a PIL image
+        pil_img = Image.fromarray(frame)
+
+        # Resize the image
+        max_size = 500
+        ratio = max_size / max(pil_img.size)
+        new_size = tuple([int(x * ratio) for x in pil_img.size])
+        resized_img = pil_img.resize(new_size, Image.LANCZOS)
+
+        # Convert PIL image to a bytes buffer and encode in base64
+        buffered = io.BytesIO()
+        resized_img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        # Check image quality
+        is_dark_or_uniform = self._check_image_quality(
+            resized_img, count_frames, debugging
+        )
+
+        # Save the frame if it's good quality
+        if not is_dark_or_uniform:
+            path = os.path.join(self.frames_dir, "frame.jpg")
+            resized_img.save(path)
+
+        return img_str, is_dark_or_uniform
+
+    def _process_movement_frame(self, frame, count_frames, debugging):
+        """
+        Process a single frame for movement detection (synchronous, meant to run in executor).
+        Returns tuple of (img_str, movement_detected).
+        """
+        # Convert the frame to a PIL image
+        pil_img = Image.fromarray(frame)
+
+        # Resize the image (same as capture method)
+        max_size = 500
+        ratio = max_size / max(pil_img.size)
+        new_size = tuple([int(x * ratio) for x in pil_img.size])
+        resized_img = pil_img.resize(new_size, Image.LANCZOS)
+
+        # Convert PIL image to a bytes buffer and encode in base64
+        buffered = io.BytesIO()
+        resized_img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        # Check for movement
+        movement_detected = self._detect_movement(resized_img, count_frames, debugging)
+
+        # Store current frame as previous for next iteration
+        self.previous_frame = resized_img.copy()
+
+        # Save frame if movement detected
+        if movement_detected:
+            path = os.path.join(self.frames_dir, "movement_frame.jpg")
+            resized_img.save(path)
+
+        return img_str, movement_detected
+
     def _check_image_quality(self, image, count_frames, debugging=False):
+        """Check if image is too dark or lacks color variance (synchronous)."""
         # Convert to grayscale and check brightness
         gray_image = image.convert("L")
         average_intensity = np.array(gray_image).mean()
@@ -201,7 +241,7 @@ class Camera:
 
     def _detect_movement(self, current_image, count_frames, debugging=False):
         """
-        Detect movement by comparing current frame with previous frame.
+        Detect movement by comparing current frame with previous frame (synchronous).
         Returns True if movement is detected, False otherwise.
         """
         # If no previous frame, initialize it and return False
