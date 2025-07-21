@@ -24,8 +24,8 @@ from common_utils import (
 from tools import Camera
 import audio_feedback
 import db_parser as db
-from providers.provider_factory import ProviderFactory
-from providers.base_provider import TTSProvider, AsyncTTSProvider
+from tts_providers.provider_factory import ProviderFactory
+from tts_providers.base_provider import TTSProvider, AsyncTTSProvider
 
 MAX_TOKENS = int(get_env_var("MAX_TOKENS"))
 
