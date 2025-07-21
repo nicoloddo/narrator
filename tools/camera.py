@@ -29,7 +29,7 @@ class Camera:
         self.hue_uniformity_threshold = int(hue_uniformity_threshold)
         self.saturation_uniformity_threshold = int(saturation_uniformity_threshold)
         self.movement_threshold = (
-            int(movement_threshold) if movement_threshold is not None else 10
+            int(movement_threshold) if movement_threshold is not None else 0.2
         )
         self.previous_frame = None  # Store previous frame for movement detection
         os.makedirs(self.frames_dir, exist_ok=True)
