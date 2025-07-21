@@ -115,7 +115,7 @@ class Camera:
         movement_detected = False
         count_frames = 0
 
-        while not movement_detected:
+        while not movement_detected or debugging:
             frame = reader.get_next_data()
 
             # Convert the frame to a PIL image
