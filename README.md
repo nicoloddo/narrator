@@ -86,6 +86,19 @@ Inside the agent.env you can also change:
 - the first prompt and the recurring prompt to the agent,
 - the amount of times the agent will speak before turning off.
 
+### S3 Frame Storage:
+You can configure the narrator to save camera frames to Amazon S3 instead of local storage:
+
+```bash
+USE_S3_STORAGE=true
+S3_BUCKET_NAME=your-frames-bucket
+S3_KEY_PREFIX=narrator-frames
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+```
+
+See [S3_SETUP.md](S3_SETUP.md) for detailed configuration instructions.
+
 ### run.sh customization notes:
 Notice that the two .sh shouldn't be run directly but rather sourced, otherwise they will run in a new subshell and the exports will not persist:
 ```bash

@@ -6,6 +6,8 @@ import io
 import numpy as np
 from PIL import Image
 import imageio
+import boto3
+from datetime import datetime
 
 import tools.audio_feedback as audio_feedback
 
@@ -28,6 +30,30 @@ class Camera:
         )
         self.frames_dir = frames_dir
         self.darkness_threshold = int(darkness_threshold)
+
+        # S3 configuration
+        self.use_s3 = os.environ.get("USE_S3_STORAGE", "false").lower() == "true"
+        self.s3_bucket = os.environ.get("S3_BUCKET_NAME")
+        self.s3_prefix = os.environ.get("S3_KEY_PREFIX", "narrator-frames")
+
+        if self.use_s3:
+            if not self.s3_bucket:
+                raise ValueError(
+                    "S3_BUCKET_NAME environment variable is required when USE_S3_STORAGE=true"
+                )
+
+            try:
+                self.s3_client = boto3.client("s3")
+                print(
+                    f"🪣 S3 storage enabled: bucket={self.s3_bucket}, prefix={self.s3_prefix}"
+                )
+            except Exception as e:
+                print(f"Failed to initialize S3 client: {e}")
+                print("Falling back to local storage")
+                self.use_s3 = False
+        else:
+            self.s3_client = None
+            print(f"💾 Local storage enabled: {frames_dir}")
         self.hue_uniformity_threshold = int(hue_uniformity_threshold)
         self.saturation_uniformity_threshold = int(saturation_uniformity_threshold)
         self.movement_threshold = (
@@ -275,6 +301,44 @@ class Camera:
         return mean_diff > self.movement_threshold
 
     def save_frame(self, frame, filename):
-        """Save a frame to a file."""
+        """Save a frame to S3 or local filesystem."""
+        if self.use_s3 and self.s3_client:
+            try:
+                # Create a BytesIO buffer to store the image
+                img_buffer = io.BytesIO()
+                frame.save(img_buffer, format="JPEG", quality=85)
+                img_buffer.seek(0)
+
+                # Create S3 key with timestamp and prefix
+                timestamp = datetime.now().strftime("%Y/%m/%d/%H")
+                s3_key = f"{self.s3_prefix}/{timestamp}/{filename}"
+
+                # Upload to S3
+                self.s3_client.upload_fileobj(
+                    img_buffer,
+                    self.s3_bucket,
+                    s3_key,
+                    ExtraArgs={
+                        "ContentType": "image/jpeg",
+                        "Metadata": {
+                            "source": "narrator-camera",
+                            "timestamp": datetime.now().isoformat(),
+                        },
+                    },
+                )
+                print(f"📤 Frame saved to S3: s3://{self.s3_bucket}/{s3_key}")
+
+            except Exception as e:
+                print(f"❌ Failed to save frame to S3: {e}")
+                print("🔄 Falling back to local storage")
+                # Fall back to local storage
+                self._save_frame_locally(frame, filename)
+        else:
+            # Save locally
+            self._save_frame_locally(frame, filename)
+
+    def _save_frame_locally(self, frame, filename):
+        """Save a frame to local filesystem."""
         path = os.path.join(self.frames_dir, filename)
         frame.save(path)
+        print(f"💾 Frame saved locally: {path}")

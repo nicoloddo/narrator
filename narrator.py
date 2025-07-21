@@ -167,7 +167,7 @@ class Narrator:
         print(
             "🔇 To continue without audio output, the env variable ALLOW_NO_TTS must set to True."
         )
-        if os.environ.get("ALLOW_NO_TTS") == "True":
+        if os.environ.get("ALLOW_NO_TTS").lower() == "true":
             print("🔇 ALLOW_NO_TTS is set to True, continuing without audio output.")
         else:
             print("🔇 ALLOW_NO_TTS is not set to True, shutting down.")
