@@ -141,7 +141,9 @@ class Camera:
                 resized_img, count_frames, debugging
             )
 
-            if debugging and count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0:
+            if debugging and (
+                count_frames % self.PRINT_DEBUG_EACH_N_FRAMES == 0 or movement_detected
+            ):
                 if movement_detected:
                     print("Movement detected!")
                     audio_feedback.i_see()
@@ -160,7 +162,7 @@ class Camera:
 
             # Small delay to avoid overwhelming the system
             if not movement_detected:
-                time.sleep(0.1)
+                time.sleep(0.5)
 
         # Movement detected! Save the frame and return
         path = os.path.join(self.frames_dir, "movement_frame.jpg")
