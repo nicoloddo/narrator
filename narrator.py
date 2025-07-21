@@ -327,6 +327,12 @@ class Narrator:
             capture_method = self._get_camera_capture_method(mode_config.camera_method)
             base64_image = await capture_method()
 
+            if not mode_config.agent:
+                print(
+                    f"🔄 No agent set for mode {self.current_mode.value}, no thinking and voice will be used."
+                )
+                return
+
             # Create message object for AI analysis
             message = {
                 "content": self.current_record.content if self.current_record else None,
@@ -368,7 +374,7 @@ class Narrator:
             text = cut_to_n_words(text, int(max_tokens * 5 / 4))
 
             # Play audio
-            if not self.debug_chat and self.tts_provider:
+            if not self.debug_chat and self.tts_provider and mode_config.agent:
                 if isinstance(self.tts_provider, AsyncTTSProvider):
                     await self.tts_provider.play_audio_async(
                         text, self.current_mode.value

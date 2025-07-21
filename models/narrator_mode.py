@@ -21,7 +21,10 @@ class CaptureMode(str, Enum):
 
 
 class NarratorMode(str, Enum):
-    """Enumeration of available narrator modes."""
+    """
+    Enumeration of available narrator modes.
+    If the mode starts with ask_, the content of the record will be used
+    as an additional prompt."""
 
     STARTUP = "startup"
     WAIT_FOR_INSTRUCTIONS = "wait_for_instructions"
@@ -43,7 +46,9 @@ class ModeConfig(BaseModel):
     capture_mode: CaptureMode = CaptureMode.CONTINUOUS
     sleep_interval: float = 3.0  # seconds between captures in continuous mode
     description: str = ""
-    agent: str = "davide"  # Agent name for voice/personality (e.g., "davide", "bortis")
+    agent: Optional[str] = (
+        None  # Agent name for voice/personality (e.g., "davide", "bortis"). None for no agent..
+    )
 
     class Config:
         use_enum_values = True

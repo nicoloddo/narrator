@@ -173,8 +173,8 @@ class Camera:
 
         # Save the frame if it's good quality
         if not is_dark_or_uniform:
-            path = os.path.join(self.frames_dir, "frame.jpg")
-            resized_img.save(path)
+            filename = f"frame_{count_frames}.jpg"
+            self.save_frame(resized_img, filename)
 
         return img_str, is_dark_or_uniform
 
@@ -205,8 +205,8 @@ class Camera:
 
         # Save frame if movement detected
         if movement_detected:
-            path = os.path.join(self.frames_dir, "movement_frame.jpg")
-            resized_img.save(path)
+            filename = f"movement_frame_{count_frames}.jpg"
+            self.save_frame(resized_img, filename)
 
         return img_str, movement_detected
 
@@ -273,3 +273,8 @@ class Camera:
 
         # Return True if movement exceeds threshold
         return mean_diff > self.movement_threshold
+
+    def save_frame(self, frame, filename):
+        """Save a frame to a file."""
+        path = os.path.join(self.frames_dir, filename)
+        frame.save(path)

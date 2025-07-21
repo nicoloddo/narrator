@@ -54,7 +54,7 @@ def generate_new_line(mode, message, base64_image, first_prompt_bool):
     else:
         prompt = get_new_image_prompt(mode)
 
-    if message and message.get("mode") == "ask_davide":
+    if message and message.get("mode").startswith("ask_"):
         if message.get("content"):
             prompt += f"\n\nThe person asks: {message['content']}. "
 
