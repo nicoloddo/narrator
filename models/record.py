@@ -14,5 +14,5 @@ class RecordModel(BaseModel):
     )
 
     class Config:
-        use_enum_values = True
+        use_enum_values = False  # Keep enum objects, don't convert to strings
         extra = "allow"  # Allow additional fields that might come from the queue

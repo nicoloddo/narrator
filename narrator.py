@@ -205,7 +205,7 @@ class Narrator:
             with open(f"requests/{record.id}.json", "w+") as file:
                 json.dump(record_data, file, indent=4)
 
-            # Update mode
+            # Ensure mode is properly converted to enum
             old_mode = self.current_mode
             self.current_mode = record.mode
 
