@@ -114,10 +114,10 @@ class Narrator:
         """Continuously process incoming records."""
         print("🔄 Starting record processing task...")
 
+        print("🔄 Waiting for a message...")
         while not self.shutdown_event.is_set():
             try:
                 # Fetch new record
-                print("Waiting for a message...")
                 record_data = await db.fetch_record(self.debug_chat)
 
                 if record_data:
