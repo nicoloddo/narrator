@@ -93,6 +93,7 @@ def main(
         saturation_uniformity_threshold=os.environ.get(
             "SATURATION_UNIFORMITY_THRESHOLD"
         ),
+        movement_threshold=os.environ.get("MOVEMENT_THRESHOLD"),
     )
 
     # Start camera.
@@ -250,6 +251,7 @@ async def async_main(
         saturation_uniformity_threshold=os.environ.get(
             "SATURATION_UNIFORMITY_THRESHOLD"
         ),
+        movement_threshold=os.environ.get("MOVEMENT_THRESHOLD"),
     )
 
     # Start camera.
