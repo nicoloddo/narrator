@@ -38,54 +38,52 @@ def process_message(message):
     return body
 
 
-def fetch_record(debug_chat=False):
-    """
-    Fetch a record from the SQS queue.
-
-    Args:
-        debug_chat (bool): If True, returns a mock record for testing
-
-    Returns:
-        dict: The processed message body with added 'id' field
-    """
-
-    if debug_chat:
-        print("Debug mode: returning mock record")
-        return {
-            "id": "debug-123",
-            "mode": "ask_davide",
-            "content": "This is a debug message for testing the chat functionality.",
-        }
-
+def fetch_record(verbose=False):
+    print("Waiting for a message.")
     while True:
         try:
-            # Receive message from SQS queue
+            # Receive messages from SQS FIFO queue
             response = sqs.receive_message(
                 QueueUrl=queue_url,
                 MaxNumberOfMessages=1,
-                WaitTimeSeconds=20,  # Long polling
-                VisibilityTimeoutSeconds=30,
+                WaitTimeSeconds=0,  # Short polling
+                AttributeNames=["MessageGroupId"],
             )
 
-            # Check if we received any messages
-            if "Messages" in response:
-                message = response["Messages"][0]
+            # Process message if received
+            messages = response.get("Messages", [])
+            if messages:
+                message = messages[0]
+                if verbose:
+                    print(f"New message: {message}")
+                try:
+                    record = process_message(message)
 
-                # Process the message
-                processed_body = process_message(message)
+                    # Delete the message from the queue after successful processing
+                    sqs.delete_message(
+                        QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
+                    )
+                    if verbose:
+                        print(
+                            f"Successfully processed and deleted message: {message['MessageId']}"
+                        )
+                        print(
+                            f"Message Group ID: {message['Attributes']['MessageGroupId']}"
+                        )
 
-                # Delete the message from the queue
-                sqs.delete_message(
-                    QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
-                )
+                    return record
 
-                return processed_body
+                except Exception as e:
+                    print(f"Error processing message {message['MessageId']}: {e}")
+                    # Message will return to the queue after visibility timeout
             else:
-                print("No messages received, continuing to poll...")
+                if verbose:
+                    # print("No messages found.")
+                    pass
+
+            # Wait for 1 second before the next request
+            time.sleep(1)
 
         except ClientError as e:
-            print(f"Error receiving message: {e}")
-            time.sleep(5)  # Wait before retrying
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            time.sleep(5)  # Wait before retrying
+            print(f"An error occurred: {e}")
+            time.sleep(5)  # Wait a bit longer on errors
